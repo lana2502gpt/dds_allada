@@ -244,6 +244,20 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
 const MONTH_RU = {1:'Январь',2:'Февраль',3:'Март',4:'Апрель',5:'Май',6:'Июнь',
                   7:'Июль',8:'Август',9:'Сентябрь',10:'Октябрь',11:'Ноябрь',12:'Декабрь'};
 let _report = null;
+const API_BASE = window.location.protocol === 'file:' ? 'http://127.0.0.1:5000' : '';
+
+function apiUrl(path) {
+  return `${API_BASE}${path}`;
+}
+
+function normalizeText(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/\s+/g, ' ')
+    .replace(/([А-Яа-яA-Za-z])(\d)/g, '$1 $2')
+    .replace(/(\d)([А-Яа-яA-Za-z])/g, '$1 $2')
+    .trim();
+}
 
 function normalizeText(s) {
   if (!s) return '';
@@ -421,7 +435,7 @@ async function generate() {
   document.getElementById('spinner').style.display = 'inline-block';
 
   try {
-    const resp = await fetch('/api/report', {
+    const resp = await fetch(apiUrl('/api/report'), {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(getParams()),
@@ -452,7 +466,7 @@ async function generate() {
 
 // ── Download XLSX ───────────────────────────────────────────────
 async function download() {
-  const resp = await fetch('/api/download', {
+  const resp = await fetch(apiUrl('/api/download'), {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(getParams()),
@@ -477,7 +491,7 @@ function closeUploadModal() {
 }
 
 async function refreshFileInfo() {
-  const resp = await fetch('/api/file-info');
+  const resp = await fetch(apiUrl('/api/file-info'));
   const data = await resp.json();
   document.getElementById('file-name').textContent = data.name || '—';
 }
@@ -497,7 +511,7 @@ async function uploadFile() {
 
   btn.disabled = true;
   try {
-    const resp = await fetch('/api/upload', { method: 'POST', body: form });
+    const resp = await fetch(apiUrl('/api/upload'), { method: 'POST', body: form });
     const raw = await resp.text();
     let data = {};
     try { data = JSON.parse(raw); } catch (_) {}
@@ -506,12 +520,30 @@ async function uploadFile() {
     msg.style.color = '#1e8449';
     await refreshFileInfo();
   } catch (e) {
-    msg.textContent = 'Ошибка: ' + e.message;
+    const hint = e.message === 'Failed to fetch'
+      ? ' Нет соединения с backend (ожидается http://127.0.0.1:5000).'
+      : '';
+    msg.textContent = 'Ошибка: ' + e.message + hint;
     msg.style.color = '#c0392b';
   } finally {
     btn.disabled = false;
   }
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const fileNameEl = document.getElementById('file-name');
+  if (fileNameEl.textContent.includes('{{')) fileNameEl.textContent = 'system_dds_allada.xlsx';
+  if (window.location.protocol === 'file:') {
+    const ib = document.getElementById('info-bar');
+    ib.innerHTML = '<span>Внимание:</span> страница открыта как файл. Для API используется http://127.0.0.1:5000';
+    ib.style.display = '';
+  }
+  try {
+    await refreshFileInfo();
+  } catch (_) {
+    // ignore on first load if backend unavailable
+  }
+});
 </script>
 </body>
 </html>
