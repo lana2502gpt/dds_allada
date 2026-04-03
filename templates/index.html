@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>DDS Allada — Сравнение расходов</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px;
+       background: #f0f2f5; color: #1a1a2e; }
+
+/* ── Header ─────────────────────────────────────────────────────── */
+header { background: linear-gradient(135deg, #1a3a5c 0%, #0d2a4a 100%);
+         color: #fff; padding: 18px 28px; display: flex;
+         align-items: center; justify-content: space-between; }
+header h1 { font-size: 18px; font-weight: 600; letter-spacing: .3px; }
+header .sub { font-size: 11px; opacity: .7; margin-top: 2px; }
+
+/* ── Controls ───────────────────────────────────────────────────── */
+.controls { background: #fff; margin: 16px 24px; padding: 18px 24px;
+            border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 10px; font-weight: 600; text-transform: uppercase;
+               color: #666; letter-spacing: .5px; }
+.field select, .field input { height: 34px; border: 1px solid #c8cdd5;
+               border-radius: 5px; padding: 0 10px; font-size: 13px;
+               background: #fff; color: #1a1a2e; min-width: 120px; }
+.field select:focus, .field input:focus { outline: none; border-color: #2980b9;
+               box-shadow: 0 0 0 2px rgba(41,128,185,.2); }
+
+.radio-group { display: flex; gap: 0; }
+.radio-group input { display: none; }
+.radio-group label { padding: 7px 14px; border: 1px solid #c8cdd5;
+                     cursor: pointer; font-size: 12px; font-weight: 500;
+                     background: #f8f9fa; transition: all .15s; }
+.radio-group label:first-of-type { border-radius: 5px 0 0 5px; }
+.radio-group label:last-of-type  { border-radius: 0 5px 5px 0; }
+.radio-group label:not(:first-of-type) { border-left: none; }
+.radio-group input:checked + label { background: #1a3a5c; color: #fff;
+                                      border-color: #1a3a5c; }
+
+btn, .btn-dl { height: 34px; border: none; border-radius: 5px; cursor: pointer;
+          font-size: 13px; font-weight: 600; padding: 0 22px; transition: all .15s; }
+.btn { background: #2980b9; color: #fff; height: 34px; border: none;
+       border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600;
+       padding: 0 22px; }
+.btn:hover { background: #1a6da0; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn-dl { background: #27ae60; color: #fff; height: 34px; border: none;
+          border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600;
+          padding: 0 18px; margin-left: 8px; }
+.btn-dl:hover { background: #1e8449; }
+
+/* ── Info bar ───────────────────────────────────────────────────── */
+.info-bar { margin: 0 24px 8px; padding: 10px 20px; background: #eaf4fb;
+            border-radius: 6px; font-size: 12px; color: #1a3a5c;
+            display: none; }
+.info-bar span { font-weight: 600; }
+
+/* ── Tabs ───────────────────────────────────────────────────────── */
+.tabs { margin: 0 24px; display: flex; gap: 0; }
+.tab { padding: 8px 20px; border: 1px solid #c8cdd5; border-bottom: none;
+       cursor: pointer; font-size: 12px; font-weight: 500; background: #f0f2f5;
+       border-radius: 6px 6px 0 0; position: relative; top: 1px; }
+.tab.active { background: #fff; border-bottom-color: #fff; font-weight: 700;
+              color: #1a3a5c; }
+
+/* ── Table ──────────────────────────────────────────────────────── */
+.table-wrap { margin: 0 24px 24px; background: #fff; border: 1px solid #c8cdd5;
+              border-radius: 0 6px 6px 6px; overflow-x: auto;
+              box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+thead th { position: sticky; top: 0; z-index: 2; background: #1a3a5c;
+           color: #fff; font-size: 10px; font-weight: 600;
+           text-transform: uppercase; letter-spacing: .4px;
+           padding: 8px 10px; text-align: right; white-space: nowrap; }
+thead th:first-child { text-align: left; min-width: 280px; }
+td { padding: 5px 10px; border-bottom: 1px solid #eef0f4; text-align: right;
+     white-space: nowrap; font-variant-numeric: tabular-nums; }
+td:first-child { text-align: left; }
+
+tr.group td { background: #1a3a5c; color: #fff; font-weight: 700; font-size: 12px; }
+tr.single td { background: #cfd8e8; color: #1a1a2e; font-weight: 600; }
+tr.detail td { background: #fafbfd; color: #555; font-style: italic; font-size: 11px; }
+tr.detail td:first-child { padding-left: 28px; }
+tr.grand td { background: #0d1e35; color: #fff; font-weight: 700; font-size: 13px; }
+tr.revenue td { background: #1b7a3d; color: #fff; font-weight: 700; font-size: 13px; }
+tr:hover td { filter: brightness(.97); }
+
+/* Credit section */
+tr.credit-head td { background: #F5E6D0; color: #8B5E3C; font-weight: 700;
+                    font-size: 12px; text-align: center !important;
+                    text-transform: uppercase; letter-spacing: .5px; padding: 8px; }
+tr.cr-group td { background: #8B5E3C; color: #fff; font-weight: 700; }
+tr.cr-single td { background: #F5E6D0; color: #5a3a1a; font-weight: 600; }
+tr.cr-detail td { background: #FFF8F0; color: #7d5a3a; font-style: italic; font-size: 11px; }
+tr.cr-detail td:first-child { padding-left: 28px; }
+tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 13px; }
+
+.up   { color: #c0392b; }
+.down { color: #1a5276; }
+.flat { color: #777; }
+.assess { font-size: 10px; }
+
+.pct-bar { display: inline-block; height: 4px; border-radius: 2px;
+           vertical-align: middle; margin-left: 4px; min-width: 2px; }
+
+/* ── Loading ────────────────────────────────────────────────────── */
+.spinner { display: none; width: 18px; height: 18px; border: 2px solid #c8cdd5;
+           border-top-color: #2980b9; border-radius: 50%;
+           animation: spin .6s linear infinite; margin-left: 8px;
+           vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading .spinner { display: inline-block; }
+
+/* ── Empty state ────────────────────────────────────────────────── */
+.empty { text-align: center; padding: 60px 20px; color: #999; }
+.empty .icon { font-size: 40px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>DDS Allada</h1>
+    <div class="sub">Сравнение расходов по периодам</div>
+  </div>
+  <div style="font-size:11px;opacity:.6">system_dds_allada.xlsx</div>
+</header>
+
+<!-- ── Controls ──────────────────────────────────────────────────── -->
+<div class="controls" id="controls">
+  <div class="field">
+    <label>Тип периода</label>
+    <div class="radio-group">
+      <input type="radio" name="ptype" id="pt_month" value="month" checked>
+      <label for="pt_month">Месяц</label>
+      <input type="radio" name="ptype" id="pt_quarter" value="quarter">
+      <label for="pt_quarter">Квартал</label>
+      <input type="radio" name="ptype" id="pt_year" value="year">
+      <label for="pt_year">Год</label>
+    </div>
+  </div>
+
+  <div class="field" id="f_month">
+    <label>Месяц</label>
+    <select id="sel_month">
+      <option value="1">Январь</option><option value="2">Февраль</option>
+      <option value="3">Март</option><option value="4">Апрель</option>
+      <option value="5">Май</option><option value="6">Июнь</option>
+      <option value="7">Июль</option><option value="8">Август</option>
+      <option value="9">Сентябрь</option><option value="10">Октябрь</option>
+      <option value="11">Ноябрь</option><option value="12">Декабрь</option>
+    </select>
+  </div>
+
+  <div class="field" id="f_quarter" style="display:none">
+    <label>Квартал</label>
+    <select id="sel_quarter">
+      <option value="1">Q1 (янв-мар)</option>
+      <option value="2">Q2 (апр-июн)</option>
+      <option value="3">Q3 (июл-сен)</option>
+      <option value="4">Q4 (окт-дек)</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Новый год</label>
+    <select id="sel_year_new">
+      <option value="2026">2026</option>
+      <option value="2025" selected>2025</option>
+      <option value="2024">2024</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Старый год</label>
+    <select id="sel_year_old">
+      <option value="2025">2025</option>
+      <option value="2024" selected>2024</option>
+    </select>
+  </div>
+
+  <div class="field" style="flex-direction:row;align-items:flex-end;">
+    <button class="btn" id="btn_go" onclick="generate()">Сформировать</button>
+    <button class="btn-dl" id="btn_dl" onclick="download()" style="display:none">Скачать XLSX</button>
+    <span class="spinner" id="spinner"></span>
+  </div>
+</div>
+
+<div class="info-bar" id="info-bar"></div>
+
+<!-- ── Tabs ──────────────────────────────────────────────────────── -->
+<div class="tabs" id="tabs" style="display:none">
+  <div class="tab active" data-tab="data" onclick="switchTab('data')">Данные</div>
+  <div class="tab" data-tab="cmp" onclick="switchTab('cmp')">Сравнение</div>
+</div>
+
+<!-- ── Table container ──────────────────────────────────────────── -->
+<div class="table-wrap" id="table-wrap">
+  <div class="empty" id="empty">
+    <div class="icon">&#128202;</div>
+    Выберите период и нажмите &laquo;Сформировать&raquo;
+  </div>
+  <div id="data-table" style="display:none"></div>
+  <div id="cmp-table" style="display:none"></div>
+</div>
+
+<script>
+const MONTH_RU = {1:'Январь',2:'Февраль',3:'Март',4:'Апрель',5:'Май',6:'Июнь',
+                  7:'Июль',8:'Август',9:'Сентябрь',10:'Октябрь',11:'Ноябрь',12:'Декабрь'};
+let _report = null;
+
+// ── Period type toggle ──────────────────────────────────────────
+document.querySelectorAll('input[name="ptype"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const v = r.value;
+    document.getElementById('f_month').style.display   = v === 'month'   ? '' : 'none';
+    document.getElementById('f_quarter').style.display = v === 'quarter' ? '' : 'none';
+  });
+});
+
+// Auto-fill old year = new year - 1
+document.getElementById('sel_year_new').addEventListener('change', function() {
+  document.getElementById('sel_year_old').value = String(Number(this.value) - 1);
+});
+
+function getParams() {
+  const ptype = document.querySelector('input[name="ptype"]:checked').value;
+  return {
+    period_type: ptype,
+    period_value: ptype === 'month' ? document.getElementById('sel_month').value
+                : ptype === 'quarter' ? document.getElementById('sel_quarter').value : '1',
+    year_new: document.getElementById('sel_year_new').value,
+    year_old: document.getElementById('sel_year_old').value,
+  };
+}
+
+function fmt(n) {
+  if (n == null || n === 0) return '<span style="color:#ccc">&mdash;</span>';
+  return n.toLocaleString('ru-RU');
+}
+function fmtPct(n) {
+  if (n == null) return '&mdash;';
+  const cls = n > 0 ? 'up' : n < 0 ? 'down' : 'flat';
+  return `<span class="${cls}">${n > 0 ? '+' : ''}${n.toFixed(1)}%</span>`;
+}
+function fmtPP(n) {
+  if (n == null) return '&mdash;';
+  const cls = n > 0.5 ? 'up' : n < -0.5 ? 'down' : 'flat';
+  return `<span class="${cls}">${n > 0 ? '+' : ''}${n.toFixed(1)} пп</span>`;
+}
+function fmtRevPct(n) {
+  if (n == null) return '&mdash;';
+  return n.toFixed(1) + '%';
+}
+
+function rowClass(r) {
+  if (r.type === 'grand') return 'grand';
+  if (r.type === 'detail') return 'detail';
+  if (r.single) return 'single';
+  return 'group';
+}
+function crClass(r) {
+  if (r.type === 'grand') return 'cr-grand';
+  if (r.type === 'detail') return 'cr-detail';
+  if (r.single) return 'cr-single';
+  return 'cr-group';
+}
+
+// ── Render data rows ────────────────────────────────────────────
+function dataRowsHtml(rows, mn, classFn) {
+  let h = '';
+  rows.forEach(r => {
+    const cls = classFn(r);
+    const lbl = r.type === 'detail' ? '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + r.label : r.label;
+    h += `<tr class="${cls}"><td>${lbl}</td>`;
+    (r.months_new || []).forEach(v => h += `<td>${fmt(v)}</td>`);
+    if (!r.months_new.length) mn.forEach(() => h += '<td></td>');
+    h += `<td>${fmt(r.avg_new)}</td><td>${fmt(r.total_new)}</td></tr>`;
+  });
+  return h;
+}
+
+function renderData(rpt) {
+  const mn = rpt.month_names;
+  const ncols = mn.length + 2;
+  let h = '<table><thead><tr><th>Статья / Группа</th>';
+  mn.forEach(m => h += `<th>${m} ${rpt.year_new}</th>`);
+  h += '<th>Среднее/мес</th><th>Итого</th></tr></thead><tbody>';
+
+  // Revenue row
+  const revM = rpt.rev_new_months || [];
+  const revSum = rpt.rev_new || 0;
+  const revAvg = mn.length ? Math.round(revSum / mn.length) : 0;
+  h += `<tr class="revenue"><td>ВЫРУЧКА</td>`;
+  revM.forEach(v => h += `<td>${fmt(v)}</td>`);
+  if (!revM.length) mn.forEach(() => h += '<td></td>');
+  h += `<td>${fmt(revAvg)}</td><td>${fmt(revSum)}</td></tr>`;
+
+  h += dataRowsHtml(rpt.rows, mn, rowClass);
+
+  if (rpt.credit_rows && rpt.credit_rows.length) {
+    h += `<tr class="credit-head"><td colspan="${ncols + 1}">КРЕДИТЫ И ЗАЙМЫ</td></tr>`;
+    h += dataRowsHtml(rpt.credit_rows, mn, crClass);
+  }
+  h += '</tbody></table>';
+  document.getElementById('data-table').innerHTML = h;
+}
+
+// ── Render comparison rows ──────────────────────────────────────
+function cmpRowsHtml(rows, classFn) {
+  let h = '';
+  rows.forEach(r => {
+    const cls = classFn(r);
+    const lbl = r.type === 'detail' ? '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + r.label : r.label;
+    const dCls = r.delta > 0 ? 'up' : r.delta < 0 ? 'down' : 'flat';
+    h += `<tr class="${cls}">
+      <td>${lbl}</td>
+      <td>${fmt(r.total_old)}</td><td>${fmt(r.total_new)}</td>
+      <td><span class="${dCls}">${r.delta > 0 ? '+' : ''}${fmt(r.delta)}</span></td>
+      <td>${fmtPct(r.pct)}</td>
+      <td class="assess">${r.assess || ''}</td>
+      <td>${fmtRevPct(r.pct_rev_old)}</td>
+      <td>${fmtRevPct(r.pct_rev_new)}</td>
+      <td>${fmtPP(r.delta_pp)}</td>
+    </tr>`;
+  });
+  return h;
+}
+
+function renderCmp(rpt) {
+  const yn = rpt.year_new, yo = rpt.year_old;
+  let h = `<table><thead><tr>
+    <th>Статья / Группа</th>
+    <th>${rpt.period_label} ${yo}</th><th>${rpt.period_label} ${yn}</th>
+    <th>Изменение</th><th>Тренд %</th><th>Оценка</th>
+    <th>% выр. ${yo}</th><th>% выр. ${yn}</th><th>&Delta; пп</th>
+    </tr></thead><tbody>`;
+
+  // Revenue row
+  const revOld = rpt.rev_old || 0, revNew = rpt.rev_new || 0;
+  const revD = rpt.rev_delta || 0, revP = rpt.rev_pct || 0;
+  const revDCls = revD > 0 ? 'down' : revD < 0 ? 'up' : 'flat';  // down=blue=good for revenue
+  h += `<tr class="revenue">
+    <td>ВЫРУЧКА</td>
+    <td>${fmt(revOld)}</td><td>${fmt(revNew)}</td>
+    <td><span class="${revDCls}">${revD > 0 ? '+' : ''}${fmt(revD)}</span></td>
+    <td>${fmtPct(revP)}</td>
+    <td class="assess">${Math.abs(revP) > 20 ? (revP > 0 ? 'рост' : 'снижение') : 'стабильно'}</td>
+    <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  </tr>`;
+
+  h += cmpRowsHtml(rpt.rows, rowClass);
+
+  if (rpt.credit_rows && rpt.credit_rows.length) {
+    h += `<tr class="credit-head"><td colspan="9">КРЕДИТЫ И ЗАЙМЫ</td></tr>`;
+    h += cmpRowsHtml(rpt.credit_rows, crClass);
+  }
+  h += '</tbody></table>';
+  document.getElementById('cmp-table').innerHTML = h;
+}
+
+// ── Tabs ────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('data-table').style.display = tab === 'data' ? '' : 'none';
+  document.getElementById('cmp-table').style.display  = tab === 'cmp'  ? '' : 'none';
+}
+
+// ── Generate ────────────────────────────────────────────────────
+async function generate() {
+  const btn = document.getElementById('btn_go');
+  btn.disabled = true;
+  document.getElementById('spinner').style.display = 'inline-block';
+
+  try {
+    const resp = await fetch('/api/report', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(getParams()),
+    });
+    _report = await resp.json();
+
+    renderData(_report);
+    renderCmp(_report);
+
+    document.getElementById('empty').style.display = 'none';
+    document.getElementById('tabs').style.display = '';
+    switchTab('cmp');  // show comparison by default
+
+    // Info bar
+    const ib = document.getElementById('info-bar');
+    ib.innerHTML = `<span>${_report.period_label} ${_report.year_new} vs ${_report.year_old}</span> &nbsp;|&nbsp; ` +
+      `Выручка ${_report.year_old}: <span>${fmt(_report.rev_old)} &#8381;</span> &nbsp;|&nbsp; ` +
+      `Выручка ${_report.year_new}: <span>${fmt(_report.rev_new)} &#8381;</span>`;
+    ib.style.display = '';
+    document.getElementById('btn_dl').style.display = '';
+  } catch (e) {
+    alert('Ошибка: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    document.getElementById('spinner').style.display = 'none';
+  }
+}
+
+// ── Download XLSX ───────────────────────────────────────────────
+async function download() {
+  const resp = await fetch('/api/download', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(getParams()),
+  });
+  const blob = await resp.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = resp.headers.get('content-disposition')?.split('filename=')[1]
+    || `comparison_${_report.year_new}_vs_${_report.year_old}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
