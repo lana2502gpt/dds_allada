@@ -25,7 +25,8 @@ app = Flask(__name__)
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 XLSX_IN = Path(__file__).resolve().parent / "system_dds_allada.xlsx"
-ALLOWED_FILE_NAME = "system_dds_allada.xlsx"
+TARGET_FILE_NAME = "system_dds_allada.xlsx"
+ALLOWED_EXTENSIONS = {".xlsx"}
 
 BANK_WALLETS = {'Альфа 796', 'Сбер 595', 'Счет 606', 'Счет 11', 'Счет 12'}
 EXCLUDE_ARTICLES = {
@@ -542,32 +543,37 @@ def api_file_info():
 @app.route('/api/upload', methods=['POST'])
 def api_upload():
     global XLSX_IN
-    if 'file' not in request.files:
-        return jsonify({'ok': False, 'error': 'Файл не передан.'}), 400
+    try:
+        if 'file' not in request.files:
+            return jsonify({'ok': False, 'error': 'Файл не передан.'}), 400
 
-    uploaded = request.files['file']
-    if not uploaded or not uploaded.filename:
-        return jsonify({'ok': False, 'error': 'Выберите файл для загрузки.'}), 400
+        uploaded = request.files['file']
+        if not uploaded or not uploaded.filename:
+            return jsonify({'ok': False, 'error': 'Выберите файл для загрузки.'}), 400
 
-    safe_name = secure_filename(uploaded.filename)
-    if safe_name.lower() != ALLOWED_FILE_NAME:
-        return jsonify({'ok': False, 'error': f'Разрешен только файл {ALLOWED_FILE_NAME}.'}), 400
+        safe_name = secure_filename(uploaded.filename)
+        ext = Path(safe_name).suffix.lower()
+        if ext not in ALLOWED_EXTENSIONS:
+            return jsonify({'ok': False, 'error': 'Разрешен только формат .xlsx.'}), 400
 
-    upload_dir = Path(__file__).resolve().parent / 'uploads'
-    upload_dir.mkdir(parents=True, exist_ok=True)
-    target = upload_dir / ALLOWED_FILE_NAME
-    uploaded.save(target)
+        upload_dir = Path(__file__).resolve().parent / 'uploads'
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        target = upload_dir / TARGET_FILE_NAME
+        uploaded.save(target)
 
-    XLSX_IN = target
-    reset_cache()
-    get_tx()
-    get_dds()
+        # Проверяем, что файл действительно читается как Excel workbook.
+        openpyxl.load_workbook(target, read_only=True).close()
 
-    return jsonify({
-        'ok': True,
-        'message': f'Файл {ALLOWED_FILE_NAME} успешно загружен.',
-        'file_info': get_current_file_info(),
-    })
+        XLSX_IN = target
+        reset_cache()
+
+        return jsonify({
+            'ok': True,
+            'message': f'Файл {safe_name} успешно загружен.',
+            'file_info': get_current_file_info(),
+        })
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'Ошибка обработки файла: {e}'}), 400
 
 
 @app.route('/api/report', methods=['POST'])

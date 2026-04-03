@@ -229,9 +229,9 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
 <div class="modal" id="upload-modal">
   <div class="modal-card">
     <h3>Загрузка исходного файла</h3>
-    <p>Выберите файл <b>system_dds_allada.xlsx</b> и загрузите его в приложение.</p>
+    <p>Выберите файл формата <b>.xlsx</b> и загрузите его в приложение.</p>
     <input type="file" id="xlsx-file" accept=".xlsx">
-    <div class="upload-hint">Поддерживается только файл с точным именем: system_dds_allada.xlsx.</div>
+    <div class="upload-hint">Поддерживается только формат .xlsx. Загруженный файл будет использоваться как источник данных.</div>
     <div class="upload-msg" id="upload-msg"></div>
     <div class="modal-actions">
       <button class="btn-upload" id="btn_upload_send" onclick="uploadFile()">Загрузить</button>
@@ -498,8 +498,10 @@ async function uploadFile() {
   btn.disabled = true;
   try {
     const resp = await fetch('/api/upload', { method: 'POST', body: form });
-    const data = await resp.json();
-    if (!resp.ok || !data.ok) throw new Error(data.error || 'Не удалось загрузить файл.');
+    const raw = await resp.text();
+    let data = {};
+    try { data = JSON.parse(raw); } catch (_) {}
+    if (!resp.ok || !data.ok) throw new Error(data.error || `Не удалось загрузить файл (HTTP ${resp.status}).`);
     msg.textContent = data.message || 'Файл загружен.';
     msg.style.color = '#1e8449';
     await refreshFileInfo();
