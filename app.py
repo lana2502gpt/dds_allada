@@ -16,6 +16,7 @@ import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from collections import defaultdict
 from pathlib import Path
+from werkzeug.utils import secure_filename
 from datetime import datetime
 import calendar, io, warnings, re
 warnings.filterwarnings('ignore')
@@ -23,7 +24,8 @@ warnings.filterwarnings('ignore')
 app = Flask(__name__)
 
 # ── Config ─────────────────────────────────────────────────────────────────────
-XLSX_IN = Path(r"C:\projects\dds_allada\system_dds_allada.xlsx")
+XLSX_IN = Path(__file__).resolve().parent / "system_dds_allada.xlsx"
+ALLOWED_FILE_NAME = "system_dds_allada.xlsx"
 
 BANK_WALLETS = {'Альфа 796', 'Сбер 595', 'Счет 606', 'Счет 11', 'Счет 12'}
 EXCLUDE_ARTICLES = {
@@ -67,6 +69,20 @@ _TX = None
 _DDS = None
 
 
+def reset_cache():
+    global _TX, _DDS
+    _TX = None
+    _DDS = None
+
+
+def get_current_file_info():
+    return {
+        'path': str(XLSX_IN),
+        'name': XLSX_IN.name,
+        'exists': XLSX_IN.exists(),
+    }
+
+
 def _load_sheet(name, dc, ac, rc, hr, wc=None):
     try:
         df = pd.read_excel(XLSX_IN, sheet_name=name, header=hr, dtype=str)
@@ -92,6 +108,8 @@ def _load_sheet(name, dc, ac, rc, hr, wc=None):
 def get_tx():
     global _TX
     if _TX is None:
+        if not XLSX_IN.exists():
+            raise FileNotFoundError(f'Файл не найден: {XLSX_IN}')
         print("Загрузка транзакций из Excel...")
         frames = [_load_sheet(*c, wc=1) for c in JOURNAL_SHEETS] + \
                  [_load_sheet(*c) for c in BANK_SHEETS]
@@ -105,6 +123,8 @@ def get_dds():
     """Кэшированное чтение листа ДДС (числа, без заголовков)."""
     global _DDS
     if _DDS is None:
+        if not XLSX_IN.exists():
+            raise FileNotFoundError(f'Файл не найден: {XLSX_IN}')
         print("Загрузка листа ДДС...")
         _DDS = pd.read_excel(XLSX_IN, sheet_name='ДДС', header=None)
     return _DDS
@@ -511,37 +531,82 @@ def generate_xlsx(report):
 # ── Routes ─────────────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', file_info=get_current_file_info())
+
+
+@app.route('/api/file-info', methods=['GET'])
+def api_file_info():
+    return jsonify(get_current_file_info())
+
+
+@app.route('/api/upload', methods=['POST'])
+def api_upload():
+    global XLSX_IN
+    if 'file' not in request.files:
+        return jsonify({'ok': False, 'error': 'Файл не передан.'}), 400
+
+    uploaded = request.files['file']
+    if not uploaded or not uploaded.filename:
+        return jsonify({'ok': False, 'error': 'Выберите файл для загрузки.'}), 400
+
+    safe_name = secure_filename(uploaded.filename)
+    if safe_name.lower() != ALLOWED_FILE_NAME:
+        return jsonify({'ok': False, 'error': f'Разрешен только файл {ALLOWED_FILE_NAME}.'}), 400
+
+    upload_dir = Path(__file__).resolve().parent / 'uploads'
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    target = upload_dir / ALLOWED_FILE_NAME
+    uploaded.save(target)
+
+    XLSX_IN = target
+    reset_cache()
+    get_tx()
+    get_dds()
+
+    return jsonify({
+        'ok': True,
+        'message': f'Файл {ALLOWED_FILE_NAME} успешно загружен.',
+        'file_info': get_current_file_info(),
+    })
 
 
 @app.route('/api/report', methods=['POST'])
 def api_report():
     data = request.json
-    report = build_report(
-        data['period_type'],
-        data.get('period_value', '1'),
-        data['year_new'],
-        data['year_old'],
-    )
-    return jsonify(report)
+    try:
+        report = build_report(
+            data['period_type'],
+            data.get('period_value', '1'),
+            data['year_new'],
+            data['year_old'],
+        )
+        return jsonify(report)
+    except FileNotFoundError as e:
+        return jsonify({'error': str(e)}), 400
 
 
 @app.route('/api/download', methods=['POST'])
 def api_download():
     data = request.json
-    report = build_report(
-        data['period_type'],
-        data.get('period_value', '1'),
-        data['year_new'],
-        data['year_old'],
-    )
-    buf = generate_xlsx(report)
-    fname = f"comparison_{report['period_label']}_{report['year_new']}_vs_{report['year_old']}.xlsx"
-    return send_file(buf, download_name=fname, as_attachment=True,
-                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    try:
+        report = build_report(
+            data['period_type'],
+            data.get('period_value', '1'),
+            data['year_new'],
+            data['year_old'],
+        )
+        buf = generate_xlsx(report)
+        fname = f"comparison_{report['period_label']}_{report['year_new']}_vs_{report['year_old']}.xlsx"
+        return send_file(buf, download_name=fname, as_attachment=True,
+                         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    except FileNotFoundError as e:
+        return jsonify({'error': str(e)}), 400
 
 
 if __name__ == '__main__':
-    get_tx()   # preload transactions
-    get_dds()  # preload DDS sheet
+    if XLSX_IN.exists():
+        get_tx()   # preload transactions
+        get_dds()  # preload DDS sheet
+    else:
+        print(f'Файл не найден при старте: {XLSX_IN}')
     app.run(debug=False, port=5000)
