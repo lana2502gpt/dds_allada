@@ -548,6 +548,15 @@ def index():
     return render_template('index.html', file_info=get_current_file_info())
 
 
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({
+        'ok': True,
+        'service': 'dds_allada',
+        'file': get_current_file_info(),
+    })
+
+
 @app.route('/api/file-info', methods=['GET'])
 def api_file_info():
     return jsonify(get_current_file_info())

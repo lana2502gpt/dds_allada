@@ -475,6 +475,7 @@ async function download() {
 function openUploadModal() {
   document.getElementById('upload-modal').classList.add('open');
   document.getElementById('upload-msg').textContent = '';
+  checkBackend();
 }
 
 function closeUploadModal() {
@@ -485,6 +486,21 @@ async function refreshFileInfo() {
   const resp = await fetch(apiUrl('/api/file-info'));
   const data = await resp.json();
   document.getElementById('file-name').textContent = data.name || '—';
+}
+
+async function checkBackend() {
+  const msg = document.getElementById('upload-msg');
+  try {
+    const resp = await fetch(apiUrl('/health'));
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    msg.textContent = 'Backend доступен.';
+    msg.style.color = '#1e8449';
+    return true;
+  } catch (_) {
+    msg.textContent = 'Backend недоступен. Запустите сервер: python app.py';
+    msg.style.color = '#c0392b';
+    return false;
+  }
 }
 
 async function uploadFile() {
@@ -502,6 +518,9 @@ async function uploadFile() {
 
   btn.disabled = true;
   try {
+    const isBackendUp = await checkBackend();
+    if (!isBackendUp) return;
+
     const resp = await fetch(apiUrl('/api/upload'), { method: 'POST', body: form });
     const raw = await resp.text();
     let data = {};
@@ -533,6 +552,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     await refreshFileInfo();
   } catch (_) {
     // ignore on first load if backend unavailable
+  }
+  if (window.location.protocol === 'file:') {
+    await checkBackend();
   }
 });
 </script>
