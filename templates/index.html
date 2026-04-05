@@ -259,15 +259,6 @@ function normalizeText(s) {
     .trim();
 }
 
-function normalizeText(s) {
-  if (!s) return '';
-  return String(s)
-    .replace(/\s+/g, ' ')
-    .replace(/([А-Яа-яA-Za-z])(\d)/g, '$1 $2')
-    .replace(/(\d)([А-Яа-яA-Za-z])/g, '$1 $2')
-    .trim();
-}
-
 // ── Period type toggle ──────────────────────────────────────────
 document.querySelectorAll('input[name="ptype"]').forEach(r => {
   r.addEventListener('change', () => {

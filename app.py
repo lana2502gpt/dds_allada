@@ -23,6 +23,19 @@ warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
 
+
+@app.after_request
+def add_cors_headers(resp):
+    """
+    Нужен для сценария, когда UI открыт как file://.../index.html
+    и обращается к API на http://127.0.0.1:5000.
+    """
+    if request.path.startswith('/api/'):
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return resp
+
 # ── Config ─────────────────────────────────────────────────────────────────────
 XLSX_IN = Path(__file__).resolve().parent / "system_dds_allada.xlsx"
 TARGET_FILE_NAME = "system_dds_allada.xlsx"
