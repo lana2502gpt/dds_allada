@@ -5,7 +5,7 @@
 <title>DDS Allada — Сравнение расходов</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px;
+body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; line-height: 1.35;
        background: #f0f2f5; color: #1a1a2e; }
 
 /* ── Header ─────────────────────────────────────────────────────── */
@@ -50,6 +50,10 @@ btn, .btn-dl { height: 34px; border: none; border-radius: 5px; cursor: pointer;
           border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600;
           padding: 0 18px; margin-left: 8px; }
 .btn-dl:hover { background: #1e8449; }
+.btn-upload { background: #6c5ce7; color: #fff; height: 34px; border: none;
+              border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600;
+              padding: 0 14px; margin-left: 8px; }
+.btn-upload:hover { background: #5649be; }
 
 /* ── Info bar ───────────────────────────────────────────────────── */
 .info-bar { margin: 0 24px 8px; padding: 10px 20px; background: #eaf4fb;
@@ -116,6 +120,18 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
 /* ── Empty state ────────────────────────────────────────────────── */
 .empty { text-align: center; padding: 60px 20px; color: #999; }
 .empty .icon { font-size: 40px; margin-bottom: 12px; }
+
+/* ── Upload modal ──────────────────────────────────────────────── */
+.modal { display: none; position: fixed; inset: 0; z-index: 50;
+         background: rgba(0,0,0,.45); align-items: center; justify-content: center; }
+.modal.open { display: flex; }
+.modal-card { width: min(520px, calc(100vw - 32px)); background: #fff; border-radius: 8px;
+              box-shadow: 0 16px 40px rgba(0,0,0,.25); padding: 20px; }
+.modal-card h3 { font-size: 16px; margin-bottom: 10px; }
+.modal-card p { margin-bottom: 10px; color: #444; }
+.modal-actions { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
+.upload-hint { font-size: 11px; color: #666; margin-top: 6px; }
+.upload-msg { margin-top: 10px; font-size: 12px; min-height: 18px; }
 </style>
 </head>
 <body>
@@ -125,7 +141,9 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
     <h1>DDS Allada</h1>
     <div class="sub">Сравнение расходов по периодам</div>
   </div>
-  <div style="font-size:11px;opacity:.6">system_dds_allada.xlsx</div>
+  <div style="font-size:11px;opacity:.85">
+    <span style="opacity:.8">Файл:</span> <span id="file-name">{{ file_info.name }}</span>
+  </div>
 </header>
 
 <!-- ── Controls ──────────────────────────────────────────────────── -->
@@ -184,6 +202,7 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
   <div class="field" style="flex-direction:row;align-items:flex-end;">
     <button class="btn" id="btn_go" onclick="generate()">Сформировать</button>
     <button class="btn-dl" id="btn_dl" onclick="download()" style="display:none">Скачать XLSX</button>
+    <button class="btn-upload" onclick="openUploadModal()">Загрузить файл</button>
     <span class="spinner" id="spinner"></span>
   </div>
 </div>
@@ -206,10 +225,39 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
   <div id="cmp-table" style="display:none"></div>
 </div>
 
+<!-- Upload modal -->
+<div class="modal" id="upload-modal">
+  <div class="modal-card">
+    <h3>Загрузка исходного файла</h3>
+    <p>Выберите файл формата <b>.xlsx</b> и загрузите его в приложение.</p>
+    <input type="file" id="xlsx-file" accept=".xlsx">
+    <div class="upload-hint">Поддерживается только формат .xlsx. Загруженный файл будет использоваться как источник данных.</div>
+    <div class="upload-msg" id="upload-msg"></div>
+    <div class="modal-actions">
+      <button class="btn-upload" id="btn_upload_send" onclick="uploadFile()">Загрузить</button>
+      <button class="btn" onclick="closeUploadModal()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const MONTH_RU = {1:'Январь',2:'Февраль',3:'Март',4:'Апрель',5:'Май',6:'Июнь',
                   7:'Июль',8:'Август',9:'Сентябрь',10:'Октябрь',11:'Ноябрь',12:'Декабрь'};
 let _report = null;
+const API_BASE = window.location.protocol === 'file:' ? 'http://127.0.0.1:5000' : '';
+
+function apiUrl(path) {
+  return `${API_BASE}${path}`;
+}
+
+function normalizeText(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/\s+/g, ' ')
+    .replace(/([А-Яа-яA-Za-z])(\d)/g, '$1 $2')
+    .replace(/(\d)([А-Яа-яA-Za-z])/g, '$1 $2')
+    .trim();
+}
 
 // ── Period type toggle ──────────────────────────────────────────
 document.querySelectorAll('input[name="ptype"]').forEach(r => {
@@ -273,7 +321,8 @@ function dataRowsHtml(rows, mn, classFn) {
   let h = '';
   rows.forEach(r => {
     const cls = classFn(r);
-    const lbl = r.type === 'detail' ? '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + r.label : r.label;
+    const title = normalizeText(r.label);
+    const lbl = r.type === 'detail' ? '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + title : title;
     h += `<tr class="${cls}"><td>${lbl}</td>`;
     (r.months_new || []).forEach(v => h += `<td>${fmt(v)}</td>`);
     if (!r.months_new.length) mn.forEach(() => h += '<td></td>');
@@ -313,14 +362,15 @@ function cmpRowsHtml(rows, classFn) {
   let h = '';
   rows.forEach(r => {
     const cls = classFn(r);
-    const lbl = r.type === 'detail' ? '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + r.label : r.label;
+    const title = normalizeText(r.label);
+    const lbl = r.type === 'detail' ? '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + title : title;
     const dCls = r.delta > 0 ? 'up' : r.delta < 0 ? 'down' : 'flat';
     h += `<tr class="${cls}">
       <td>${lbl}</td>
       <td>${fmt(r.total_old)}</td><td>${fmt(r.total_new)}</td>
       <td><span class="${dCls}">${r.delta > 0 ? '+' : ''}${fmt(r.delta)}</span></td>
       <td>${fmtPct(r.pct)}</td>
-      <td class="assess">${r.assess || ''}</td>
+      <td class="assess">${normalizeText(r.assess || '')}</td>
       <td>${fmtRevPct(r.pct_rev_old)}</td>
       <td>${fmtRevPct(r.pct_rev_new)}</td>
       <td>${fmtPP(r.delta_pp)}</td>
@@ -376,7 +426,7 @@ async function generate() {
   document.getElementById('spinner').style.display = 'inline-block';
 
   try {
-    const resp = await fetch('/api/report', {
+    const resp = await fetch(apiUrl('/api/report'), {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(getParams()),
@@ -392,7 +442,7 @@ async function generate() {
 
     // Info bar
     const ib = document.getElementById('info-bar');
-    ib.innerHTML = `<span>${_report.period_label} ${_report.year_new} vs ${_report.year_old}</span> &nbsp;|&nbsp; ` +
+    ib.innerHTML = `<span>${normalizeText(_report.period_label)} ${_report.year_new} vs ${_report.year_old}</span> &nbsp;|&nbsp; ` +
       `Выручка ${_report.year_old}: <span>${fmt(_report.rev_old)} &#8381;</span> &nbsp;|&nbsp; ` +
       `Выручка ${_report.year_new}: <span>${fmt(_report.rev_new)} &#8381;</span>`;
     ib.style.display = '';
@@ -407,7 +457,7 @@ async function generate() {
 
 // ── Download XLSX ───────────────────────────────────────────────
 async function download() {
-  const resp = await fetch('/api/download', {
+  const resp = await fetch(apiUrl('/api/download'), {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(getParams()),
@@ -421,6 +471,92 @@ async function download() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+function openUploadModal() {
+  document.getElementById('upload-modal').classList.add('open');
+  document.getElementById('upload-msg').textContent = '';
+  checkBackend();
+}
+
+function closeUploadModal() {
+  document.getElementById('upload-modal').classList.remove('open');
+}
+
+async function refreshFileInfo() {
+  const resp = await fetch(apiUrl('/api/file-info'));
+  const data = await resp.json();
+  document.getElementById('file-name').textContent = data.name || '—';
+}
+
+async function checkBackend() {
+  const msg = document.getElementById('upload-msg');
+  try {
+    const resp = await fetch(apiUrl('/health'));
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    msg.textContent = 'Backend доступен.';
+    msg.style.color = '#1e8449';
+    return true;
+  } catch (_) {
+    msg.textContent = 'Backend недоступен. Запустите сервер: python app.py';
+    msg.style.color = '#c0392b';
+    return false;
+  }
+}
+
+async function uploadFile() {
+  const input = document.getElementById('xlsx-file');
+  const msg = document.getElementById('upload-msg');
+  const btn = document.getElementById('btn_upload_send');
+  if (!input.files || !input.files[0]) {
+    msg.textContent = 'Сначала выберите файл.';
+    msg.style.color = '#c0392b';
+    return;
+  }
+
+  const form = new FormData();
+  form.append('file', input.files[0]);
+
+  btn.disabled = true;
+  try {
+    const isBackendUp = await checkBackend();
+    if (!isBackendUp) return;
+
+    const resp = await fetch(apiUrl('/api/upload'), { method: 'POST', body: form });
+    const raw = await resp.text();
+    let data = {};
+    try { data = JSON.parse(raw); } catch (_) {}
+    if (!resp.ok || !data.ok) throw new Error(data.error || `Не удалось загрузить файл (HTTP ${resp.status}).`);
+    msg.textContent = data.message || 'Файл загружен.';
+    msg.style.color = '#1e8449';
+    await refreshFileInfo();
+  } catch (e) {
+    const hint = e.message === 'Failed to fetch'
+      ? ' Нет соединения с backend (ожидается http://127.0.0.1:5000).'
+      : '';
+    msg.textContent = 'Ошибка: ' + e.message + hint;
+    msg.style.color = '#c0392b';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const fileNameEl = document.getElementById('file-name');
+  if (fileNameEl.textContent.includes('{{')) fileNameEl.textContent = 'system_dds_allada.xlsx';
+  if (window.location.protocol === 'file:') {
+    const ib = document.getElementById('info-bar');
+    ib.innerHTML = '<span>Внимание:</span> страница открыта как файл. Для API используется http://127.0.0.1:5000';
+    ib.style.display = '';
+  }
+  try {
+    await refreshFileInfo();
+  } catch (_) {
+    // ignore on first load if backend unavailable
+  }
+  if (window.location.protocol === 'file:') {
+    await checkBackend();
+  }
+});
 </script>
 </body>
 </html>
