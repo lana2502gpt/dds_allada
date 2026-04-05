@@ -37,7 +37,7 @@ def add_cors_headers(resp):
     return resp
 
 # ── Config ─────────────────────────────────────────────────────────────────────
-XLSX_IN = Path(__file__).resolve().parent / "system_dds_allada.xlsx"
+XLSX_IN = None
 TARGET_FILE_NAME = "system_dds_allada.xlsx"
 ALLOWED_EXTENSIONS = {".xlsx"}
 
@@ -90,6 +90,12 @@ def reset_cache():
 
 
 def get_current_file_info():
+    if XLSX_IN is None:
+        return {
+            'path': '',
+            'name': 'файл не выбран',
+            'exists': False,
+        }
     return {
         'path': str(XLSX_IN),
         'name': XLSX_IN.name,
@@ -122,6 +128,8 @@ def _load_sheet(name, dc, ac, rc, hr, wc=None):
 def get_tx():
     global _TX
     if _TX is None:
+        if XLSX_IN is None:
+            raise FileNotFoundError('Источник данных не выбран. Загрузите .xlsx файл.')
         if not XLSX_IN.exists():
             raise FileNotFoundError(f'Файл не найден: {XLSX_IN}')
         print("Загрузка транзакций из Excel...")
@@ -137,6 +145,8 @@ def get_dds():
     """Кэшированное чтение листа ДДС (числа, без заголовков)."""
     global _DDS
     if _DDS is None:
+        if XLSX_IN is None:
+            raise FileNotFoundError('Источник данных не выбран. Загрузите .xlsx файл.')
         if not XLSX_IN.exists():
             raise FileNotFoundError(f'Файл не найден: {XLSX_IN}')
         print("Загрузка листа ДДС...")
@@ -632,9 +642,7 @@ def api_download():
 
 
 if __name__ == '__main__':
-    if XLSX_IN.exists():
+    if XLSX_IN is not None and XLSX_IN.exists():
         get_tx()   # preload transactions
         get_dds()  # preload DDS sheet
-    else:
-        print(f'Файл не найден при старте: {XLSX_IN}')
     app.run(debug=False, port=5000)
