@@ -39,6 +39,32 @@ header .sub { font-size: 11px; opacity: .7; margin-top: 2px; }
 .radio-group input:checked + label { background: #1a3a5c; color: #fff;
                                       border-color: #1a3a5c; }
 
+.months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 6px; min-width: 220px; }
+.months-grid label { display: flex; align-items: center; gap: 5px; font-size: 12px;
+                     font-weight: 500; cursor: pointer; padding: 4px 6px;
+                     border: 1px solid #c8cdd5; border-radius: 4px; background: #f8f9fa;
+                     transition: all .15s; }
+.months-grid label:hover { background: #e8f0fe; border-color: #2980b9; }
+.months-grid input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; accent-color: #1a3a5c; }
+.months-grid label:has(input:checked) { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+
+.range-inputs { display: flex; align-items: center; gap: 8px; }
+.range-inputs input[type="date"] { height: 34px; border: 1px solid #c8cdd5;
+               border-radius: 5px; padding: 0 8px; font-size: 13px;
+               background: #fff; color: #1a1a2e; width: 148px; }
+.range-inputs input[type="date"]:focus { outline: none; border-color: #2980b9;
+               box-shadow: 0 0 0 2px rgba(41,128,185,.2); }
+.range-sep { font-size: 14px; color: #888; font-weight: 500; }
+
+.preset-btns { display: flex; flex-wrap: wrap; gap: 5px; max-width: 480px; }
+.preset-btn { height: 30px; border: 1px solid #c8cdd5; border-radius: 5px;
+              cursor: pointer; font-size: 12px; font-weight: 500;
+              padding: 0 12px; background: #f8f9fa; color: #1a1a2e;
+              transition: all .15s; white-space: nowrap; }
+.preset-btn:hover { background: #e8f0fe; border-color: #2980b9; color: #2980b9; }
+.preset-btn.active { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+.preset-group-sep { width: 100%; height: 0; margin: 1px 0; }
+
 btn, .btn-dl { height: 34px; border: none; border-radius: 5px; cursor: pointer;
           font-size: 13px; font-weight: 600; padding: 0 22px; transition: all .15s; }
 .btn { background: #2980b9; color: #fff; height: 34px; border: none;
@@ -54,6 +80,13 @@ btn, .btn-dl { height: 34px; border: none; border-radius: 5px; cursor: pointer;
               border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600;
               padding: 0 14px; margin-left: 8px; }
 .btn-upload:hover { background: #5649be; }
+.btn-gs { background: #0f9d58; color: #fff; height: 34px; border: none;
+          border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600;
+          padding: 0 14px; margin-left: 8px; transition: all .15s; }
+.btn-gs:hover    { background: #0b7a44; }
+.btn-gs:disabled { opacity: .5; cursor: default; }
+.btn-gs.connected { background: #0f9d58; }
+.btn-gs.error     { background: #c0392b; }
 
 /* ── Info bar ───────────────────────────────────────────────────── */
 .info-bar { margin: 0 24px 8px; padding: 10px 20px; background: #eaf4fb;
@@ -89,6 +122,8 @@ tr.detail td { background: #fafbfd; color: #555; font-style: italic; font-size: 
 tr.detail td:first-child { padding-left: 28px; }
 tr.grand td { background: #0d1e35; color: #fff; font-weight: 700; font-size: 13px; }
 tr.revenue td { background: #1b7a3d; color: #fff; font-weight: 700; font-size: 13px; }
+tr.revenue-detail td { background: #d5ead9; color: #1a472a; font-style: italic; font-size: 11px; }
+tr.revenue-detail td:first-child { padding-left: 28px; }
 tr:hover td { filter: brightness(.97); }
 
 /* Credit section */
@@ -106,8 +141,89 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
 .flat { color: #777; }
 .assess { font-size: 10px; }
 
+/* ── Category section headers ───────────────────────────────────── */
+tr.cat-head-prod td { background: #1b5e3a; color: #fff; font-weight: 700;
+                      font-size: 12px; text-align: center !important;
+                      text-transform: uppercase; letter-spacing: .6px; padding: 7px; }
+tr.cat-head-admin td { background: #2c4a7c; color: #fff; font-weight: 700;
+                       font-size: 12px; text-align: center !important;
+                       text-transform: uppercase; letter-spacing: .6px; padding: 7px; }
+.cat-badge { font-size: 10px; font-weight: 600; padding: 2px 7px;
+             border-radius: 10px; white-space: nowrap; display: inline-block; }
+.cat-prod  { background: #d4edda; color: #155724; }
+.cat-admin { background: #cfe2f7; color: #0c4a7c; }
+.cat-toggle { cursor: pointer; user-select: none; }
+.cat-toggle:hover { filter: brightness(.85); transform: scale(1.06); display: inline-block; }
+
+/* ── Filter bar ─────────────────────────────────────────────────── */
+.filter-bar { display: none; margin: 0 24px; padding: 8px 16px;
+              background: #f8f9fa; border: 1px solid #c8cdd5; border-top: none;
+              border-bottom: none; align-items: center; gap: 16px; flex-wrap: wrap; }
+.filter-bar.visible { display: flex; }
+.filter-bar input[type="text"] { height: 28px; border: 1px solid #c8cdd5;
+              border-radius: 5px; padding: 0 10px; font-size: 12px;
+              min-width: 200px; background: #fff; }
+.filter-bar input[type="text"]:focus { outline: none; border-color: #2980b9;
+              box-shadow: 0 0 0 2px rgba(41,128,185,.2); }
+.filter-type-btns { display: flex; gap: 0; }
+.filter-type-btns input { display: none; }
+.filter-type-btns label { padding: 4px 12px; border: 1px solid #c8cdd5;
+              font-size: 11px; font-weight: 600; cursor: pointer;
+              background: #f8f9fa; transition: all .15s; }
+.filter-type-btns label:first-of-type { border-radius: 4px 0 0 4px; }
+.filter-type-btns label:last-of-type  { border-radius: 0 4px 4px 0; }
+.filter-type-btns label:not(:first-of-type) { border-left: none; }
+.filter-type-btns input:checked + label { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+.filter-reset { font-size: 11px; color: #888; cursor: pointer; background: none; border: none;
+                padding: 0; text-decoration: underline; }
+.filter-reset:hover { color: #c0392b; }
+
+/* ── Collapsible groups ──────────────────────────────────────────── */
+tr.collapsible { cursor: pointer; user-select: none; }
+tr.collapsible td:first-child::before {
+  content: '▶'; display: inline-block; margin-right: 7px;
+  font-size: 9px; transition: transform .15s; vertical-align: middle;
+}
+tr.collapsible.expanded td:first-child::before { transform: rotate(90deg); }
+
 .pct-bar { display: inline-block; height: 4px; border-radius: 2px;
            vertical-align: middle; margin-left: 4px; min-width: 2px; }
+
+/* ── Period analysis tab ────────────────────────────────────────── */
+.period-summary { display: flex; gap: 16px; padding: 16px 20px 12px;
+                  background: #f8fafc; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+.period-kpi { background: #fff; border: 1px solid #dce3ed; border-radius: 8px;
+              padding: 12px 20px; min-width: 160px; }
+.period-kpi .kpi-label { font-size: 10px; font-weight: 600; text-transform: uppercase;
+                          color: #666; letter-spacing: .5px; margin-bottom: 4px; }
+.period-kpi .kpi-value { font-size: 18px; font-weight: 700; color: #1a1a2e;
+                          font-variant-numeric: tabular-nums; }
+.period-kpi .kpi-sub   { font-size: 11px; color: #888; margin-top: 2px; }
+.period-kpi.kpi-rev    { border-left: 4px solid #1b7a3d; }
+.period-kpi.kpi-exp    { border-left: 4px solid #1a3a5c; }
+.period-kpi.kpi-profit { border-left: 4px solid #2980b9; }
+
+tr.pa-group  td { background: #1a3a5c; color: #fff; font-weight: 700; font-size: 12px; }
+tr.pa-single td { background: #cfd8e8; color: #1a1a2e; font-weight: 600; }
+tr.pa-detail td { background: #fafbfd; color: #555; font-style: italic; font-size: 11px; }
+tr.pa-detail td:first-child { padding-left: 28px; }
+tr.pa-grand  td { background: #0d1e35; color: #fff; font-weight: 700; font-size: 13px; }
+tr.pa-revenue td { background: #1b7a3d; color: #fff; font-weight: 700; font-size: 13px; }
+tr.pa-revenue-detail td { background: #d5ead9; color: #1a472a; font-style: italic; font-size: 11px; }
+tr.pa-revenue-detail td:first-child { padding-left: 28px; }
+tr.pa-cr-group  td { background: #8B5E3C; color: #fff; font-weight: 700; }
+tr.pa-cr-single td { background: #F5E6D0; color: #5a3a1a; font-weight: 600; }
+tr.pa-cr-detail td { background: #FFF8F0; color: #7d5a3a; font-style: italic; font-size: 11px; }
+tr.pa-cr-detail td:first-child { padding-left: 28px; }
+tr.pa-cr-grand  td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 13px; }
+tr.pa-credit-head td { background: #F5E6D0; color: #8B5E3C; font-weight: 700;
+                       font-size: 12px; text-align: center !important;
+                       text-transform: uppercase; letter-spacing: .5px; padding: 8px; }
+.bar-cell { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.bar-cell .bar { height: 6px; border-radius: 3px; background: #2980b9;
+                 min-width: 2px; flex-shrink: 0; }
+tr.pa-group .bar, tr.pa-grand .bar { background: #7fb3d3; }
+tr.pa-single .bar { background: #1a3a5c; }
 
 /* ── Loading ────────────────────────────────────────────────────── */
 .spinner { display: none; width: 18px; height: 18px; border: 2px solid #c8cdd5;
@@ -121,6 +237,24 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
 .empty { text-align: center; padding: 60px 20px; color: #999; }
 .empty .icon { font-size: 40px; margin-bottom: 12px; }
 
+/* ── Stale data notice ───────────────────────────────────────────── */
+.stale-bar { display: none; margin: 0 24px 0; padding: 9px 20px;
+             background: #fff3cd; border: 1px solid #ffc107;
+             border-radius: 6px 6px 0 0; font-size: 12px; color: #856404;
+             text-align: center; font-weight: 500; }
+.stale-bar.visible { display: block; }
+.table-wrap.stale { opacity: .45; pointer-events: none; }
+
+/* ── Dashboard ──────────────────────────────────────────────────── */
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; }
+@media (max-width: 960px) { .dash-grid { grid-template-columns: 1fr; } }
+.chart-card { background: #fff; border: 1px solid #dce3ed; border-radius: 8px; padding: 16px 20px; }
+.chart-card h3 { font-size: 12px; font-weight: 700; color: #1a3a5c; text-transform: uppercase;
+                 letter-spacing: .5px; margin-bottom: 12px; }
+.chart-card .chart-wrap { position: relative; height: 280px; }
+.chart-card.wide { grid-column: 1 / -1; }
+.chart-card.wide .chart-wrap { height: 320px; }
+
 /* ── Upload modal ──────────────────────────────────────────────── */
 .modal { display: none; position: fixed; inset: 0; z-index: 50;
          background: rgba(0,0,0,.45); align-items: center; justify-content: center; }
@@ -133,6 +267,7 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
 .upload-hint { font-size: 11px; color: #666; margin-top: 6px; }
 .upload-msg { margin-top: 10px; font-size: 12px; min-height: 18px; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -148,71 +283,153 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
 
 <!-- ── Controls ──────────────────────────────────────────────────── -->
 <div class="controls" id="controls">
+
+  <!-- Режим -->
   <div class="field">
-    <label>Тип периода</label>
+    <label>Режим</label>
     <div class="radio-group">
-      <input type="radio" name="ptype" id="pt_month" value="month" checked>
-      <label for="pt_month">Месяц</label>
-      <input type="radio" name="ptype" id="pt_quarter" value="quarter">
-      <label for="pt_quarter">Квартал</label>
-      <input type="radio" name="ptype" id="pt_year" value="year">
-      <label for="pt_year">Год</label>
+      <input type="radio" name="app_mode" id="mode_cmp" value="cmp" checked>
+      <label for="mode_cmp">Сравнение</label>
+      <input type="radio" name="app_mode" id="mode_period" value="period">
+      <label for="mode_period">Анализ за период</label>
     </div>
   </div>
 
-  <div class="field" id="f_month">
-    <label>Месяц</label>
-    <select id="sel_month">
-      <option value="1">Январь</option><option value="2">Февраль</option>
-      <option value="3">Март</option><option value="4">Апрель</option>
-      <option value="5">Май</option><option value="6">Июнь</option>
-      <option value="7">Июль</option><option value="8">Август</option>
-      <option value="9">Сентябрь</option><option value="10">Октябрь</option>
-      <option value="11">Ноябрь</option><option value="12">Декабрь</option>
-    </select>
-  </div>
+  <!-- ── Режим «Сравнение» ─────────────────────────────────────── -->
+  <div id="cmp-controls" style="display:contents">
 
-  <div class="field" id="f_quarter" style="display:none">
-    <label>Квартал</label>
-    <select id="sel_quarter">
-      <option value="1">Q1 (янв-мар)</option>
-      <option value="2">Q2 (апр-июн)</option>
-      <option value="3">Q3 (июл-сен)</option>
-      <option value="4">Q4 (окт-дек)</option>
-    </select>
-  </div>
+    <div class="field">
+      <label>Тип периода</label>
+      <div class="radio-group">
+        <input type="radio" name="ptype" id="pt_month" value="month" checked>
+        <label for="pt_month">Месяц</label>
+        <input type="radio" name="ptype" id="pt_quarter" value="quarter">
+        <label for="pt_quarter">Квартал</label>
+        <input type="radio" name="ptype" id="pt_year" value="year">
+        <label for="pt_year">Год</label>
+      </div>
+    </div>
 
-  <div class="field">
-    <label>Новый год</label>
-    <select id="sel_year_new">
-      <option value="2026">2026</option>
-      <option value="2025" selected>2025</option>
-      <option value="2024">2024</option>
-    </select>
-  </div>
+    <!-- Новый период -->
+    <div class="field" id="f_pvalue_new">
+      <label id="lbl_pvalue_new">Месяц (новый)</label>
+      <select id="sel_pvalue_new">
+        <option value="1">Январь</option><option value="2">Февраль</option>
+        <option value="3">Март</option><option value="4">Апрель</option>
+        <option value="5">Май</option><option value="6">Июнь</option>
+        <option value="7">Июль</option><option value="8">Август</option>
+        <option value="9">Сентябрь</option><option value="10">Октябрь</option>
+        <option value="11">Ноябрь</option><option value="12">Декабрь</option>
+      </select>
+    </div>
+    <div class="field" id="f_year_new">
+      <label>Год (новый)</label>
+      <select id="sel_year_new">
+        <option value="2026">2026</option>
+        <option value="2025" selected>2025</option>
+        <option value="2024">2024</option>
+      </select>
+    </div>
 
-  <div class="field">
-    <label>Старый год</label>
-    <select id="sel_year_old">
-      <option value="2025">2025</option>
-      <option value="2024" selected>2024</option>
-    </select>
-  </div>
+    <!-- Старый период -->
+    <div class="field" id="f_pvalue_old">
+      <label id="lbl_pvalue_old">Месяц (старый)</label>
+      <select id="sel_pvalue_old">
+        <option value="1">Январь</option><option value="2">Февраль</option>
+        <option value="3">Март</option><option value="4">Апрель</option>
+        <option value="5">Май</option><option value="6">Июнь</option>
+        <option value="7">Июль</option><option value="8">Август</option>
+        <option value="9">Сентябрь</option><option value="10">Октябрь</option>
+        <option value="11">Ноябрь</option><option value="12">Декабрь</option>
+      </select>
+    </div>
+    <div class="field" id="f_year_old">
+      <label>Год (старый)</label>
+      <select id="sel_year_old">
+        <option value="2025">2025</option>
+        <option value="2024" selected>2024</option>
+      </select>
+    </div>
+
+  </div><!-- /cmp-controls -->
+
+  <!-- ── Режим «Анализ за период» ─────────────────────────────── -->
+  <div id="period-controls" style="display:none;contents">
+
+    <div class="field">
+      <label>Быстрый выбор</label>
+      <div class="preset-btns" id="preset-btns">
+        <button type="button" class="preset-btn" onclick="setPreset('cur_month',this)">Текущий месяц</button>
+        <button type="button" class="preset-btn" onclick="setPreset('prev_month',this)">Прошлый месяц</button>
+        <div class="preset-group-sep"></div>
+        <button type="button" class="preset-btn" onclick="setPreset('cur_quarter',this)">Текущий квартал</button>
+        <button type="button" class="preset-btn" onclick="setPreset('prev_quarter',this)">Прошлый квартал</button>
+        <div class="preset-group-sep"></div>
+        <button type="button" class="preset-btn" onclick="setPreset('cur_year',this)">Текущий год</button>
+        <button type="button" class="preset-btn" onclick="setPreset('prev_year',this)">Прошлый год</button>
+        <!-- Year buttons added dynamically by initPresetYears() -->
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Диапазон дат</label>
+      <div class="range-inputs">
+        <input type="date" id="pa_from">
+        <span class="range-sep">—</span>
+        <input type="date" id="pa_to">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Интервал</label>
+      <div class="radio-group">
+        <input type="radio" name="pa_interval" id="pa_day"   value="day">
+        <label for="pa_day">По дням</label>
+        <input type="radio" name="pa_interval" id="pa_month" value="month" checked>
+        <label for="pa_month">По месяцам</label>
+        <input type="radio" name="pa_interval" id="pa_year"  value="year">
+        <label for="pa_year">По годам</label>
+      </div>
+    </div>
+
+  </div><!-- /period-controls -->
 
   <div class="field" style="flex-direction:row;align-items:flex-end;">
-    <button class="btn" id="btn_go" onclick="generate()">Сформировать</button>
-    <button class="btn-dl" id="btn_dl" onclick="download()" style="display:none">Скачать XLSX</button>
-    <button class="btn-upload" onclick="openUploadModal()">Загрузить файл</button>
+    <button class="btn" id="btn_go" onclick="onGenerate()">Сформировать</button>
+    <button class="btn-dl" id="btn_dl" onclick="onDownload()" style="display:none">Скачать XLSX</button>
+    <button class="btn-gs" id="btn_gs" onclick="syncGSheets()" title="Обновить данные из Google Sheets">&#x1F504; Google Sheets</button>
+    <button class="btn-upload" onclick="openUploadModal()">Загрузить xlsx</button>
     <span class="spinner" id="spinner"></span>
   </div>
 </div>
 
 <div class="info-bar" id="info-bar"></div>
 
+<!-- ── Stale notice ──────────────────────────────────────────────── -->
+<div class="stale-bar" id="stale-bar">
+  &#9888; Параметры изменены — нажмите <b>«Сформировать»</b> для обновления данных
+</div>
+
 <!-- ── Tabs ──────────────────────────────────────────────────────── -->
 <div class="tabs" id="tabs" style="display:none">
   <div class="tab active" data-tab="data" onclick="switchTab('data')">Данные</div>
   <div class="tab" data-tab="cmp" onclick="switchTab('cmp')">Сравнение</div>
+  <div class="tab" data-tab="period" id="tab-period" style="display:none"
+       onclick="switchTab('period')">Анализ за период</div>
+  <div class="tab" data-tab="dash" id="tab-dash" style="display:none"
+       onclick="switchTab('dash')">Дашборд</div>
+</div>
+
+<!-- ── Filter bar ───────────────────────────────────────────────── -->
+<div class="filter-bar" id="filter-bar">
+  <input type="text" id="filter-text" placeholder="&#128269; Поиск по статье..." oninput="applyFilters()">
+  <div class="filter-type-btns">
+    <input type="checkbox" id="f_prod" checked onchange="applyFilters()">
+    <label for="f_prod">Производственные</label>
+    <input type="checkbox" id="f_adm" checked onchange="applyFilters()">
+    <label for="f_adm">Административные</label>
+  </div>
+  <button class="filter-reset" onclick="resetFilters()">Сбросить</button>
 </div>
 
 <!-- ── Table container ──────────────────────────────────────────── -->
@@ -221,8 +438,10 @@ tr.cr-grand td { background: #3d2c1e; color: #fff; font-weight: 700; font-size: 
     <div class="icon">&#128202;</div>
     Выберите период и нажмите &laquo;Сформировать&raquo;
   </div>
-  <div id="data-table" style="display:none"></div>
-  <div id="cmp-table" style="display:none"></div>
+  <div id="data-table"   style="display:none"></div>
+  <div id="cmp-table"    style="display:none"></div>
+  <div id="period-table" style="display:none"></div>
+  <div id="dash-table"   style="display:none"></div>
 </div>
 
 <!-- Upload modal -->
@@ -246,6 +465,153 @@ const MONTH_RU = {1:'Январь',2:'Февраль',3:'Март',4:'Апрел
 let _report = null;
 const API_BASE = window.location.protocol === 'file:' ? 'http://127.0.0.1:5000' : '';
 
+// ── Category overrides ─────────────────────────────────────────
+const _catOverrides = {};
+
+// Разобрать плоский массив строк на группы [{parent, children[]}]
+function _toGroups(rows) {
+  const groups = [];
+  let cur = null;
+  rows.filter(r => r.type !== 'grand' && r.type !== 'cat_head').forEach(r => {
+    if (r.type === 'detail') { if (cur) cur.children.push(r); }
+    else {
+      if (cur) groups.push(cur);
+      const cat = _catOverrides[r.label] || r.category || 'Административные';
+      cur = { parent: Object.assign({}, r, { category: cat }), children: [] };
+    }
+  });
+  if (cur) groups.push(cur);
+  return groups;
+}
+
+// Собрать плоский массив из групп, вставив разделители
+function _fromGroups(groups, grand) {
+  const result = [];
+  let prevCat = null;
+  groups.forEach(function(g) {
+    const cat = g.parent.category;
+    if (cat !== prevCat) {
+      result.push({ type: 'cat_head', category: cat,
+        label: cat === 'Производственные' ? 'ПРОИЗВОДСТВЕННЫЕ РАСХОДЫ' : 'АДМИНИСТРАТИВНЫЕ РАСХОДЫ' });
+      prevCat = cat;
+    }
+    result.push(g.parent);
+    g.children.forEach(c => result.push(Object.assign({}, c, { category: cat })));
+  });
+  (grand || []).forEach(r => result.push(r));
+  return result;
+}
+
+const _ADMIN_TAIL = ['дивиденды', 'енп'];
+function _isAdminTail(label) {
+  const l = label.toLowerCase();
+  return _ADMIN_TAIL.some(s => l.includes(s));
+}
+
+function applyOverridesAndSort(rows) {
+  const grand  = rows.filter(r => r.type === 'grand');
+  const groups = _toGroups(rows);
+  // Сортировка: Производственные → Административные,
+  // внутри — алфавит по возрастанию; дивиденды/ЕНП — в конце административных
+  groups.sort(function(a, b) {
+    const cA = a.parent.category === 'Производственные' ? 0 : 1;
+    const cB = b.parent.category === 'Производственные' ? 0 : 1;
+    if (cA !== cB) return cA - cB;
+    const tA = (cA === 1 && _isAdminTail(a.parent.label)) ? 1 : 0;
+    const tB = (cB === 1 && _isAdminTail(b.parent.label)) ? 1 : 0;
+    if (tA !== tB) return tA - tB;
+    return a.parent.label.localeCompare(b.parent.label, 'ru');
+  });
+  return _fromGroups(groups, grand);
+}
+
+// ── Filter state ────────────────────────────────────────────────
+let _filterText = '';
+let _filterProd = true;
+let _filterAdm  = true;
+
+function filterRows(rows, nPeriods) {
+  if (!_filterText && _filterProd && _filterAdm) return rows;
+  const origGrand = rows.find(r => r.type === 'grand');
+  const groups = _toGroups(rows);
+  const txt = _filterText;
+  const kept = groups.filter(g => {
+    const cat = g.parent.category;
+    if (cat === 'Производственные' && !_filterProd) return false;
+    if (cat !== 'Производственные' && !_filterAdm)  return false;
+    if (!txt) return true;
+    return g.parent.label.toLowerCase().includes(txt)
+        || g.children.some(c => c.label.toLowerCase().includes(txt));
+  });
+  // Для каждой группы оставить только совпадающих детей (если родитель не совпал)
+  kept.forEach(g => {
+    if (txt && !g.parent.label.toLowerCase().includes(txt))
+      g.children = g.children.filter(c => c.label.toLowerCase().includes(txt));
+  });
+
+  // Динамический итог — пересчитываем по видимым группам
+  const dynGrand = [];
+  if (origGrand) {
+    const g = Object.assign({}, origGrand);
+    if ('total_new' in origGrand) {
+      // Режим сравнения
+      const tn = kept.reduce((s, x) => s + (x.parent.total_new || 0), 0);
+      const to = kept.reduce((s, x) => s + (x.parent.total_old || 0), 0);
+      const d  = tn - to;
+      g.total_new  = tn; g.total_old  = to; g.delta = d;
+      g.pct        = to ? Math.round(d / to * 1000) / 10 : 0;
+      g.avg_new    = nPeriods ? Math.round(tn / nPeriods) : 0;
+      g.months_new = []; g.months_old = [];
+      g.pct_rev_old = null; g.pct_rev_new = null; g.delta_pp = null;
+      g.assess     = '';
+    } else if ('iv_values' in origGrand) {
+      // Режим анализа за период
+      const ivLen  = (origGrand.iv_values || []).length;
+      const ivSums = Array(ivLen).fill(0);
+      kept.forEach(x => (x.parent.iv_values || []).forEach((v, i) => { ivSums[i] += v; }));
+      const total  = ivSums.reduce((s, v) => s + v, 0);
+      g.iv_values  = ivSums; g.total = total;
+      g.avg        = ivLen ? Math.round(total / ivLen) : 0;
+      g.pct_rev    = null;
+    }
+    dynGrand.push(g);
+  }
+
+  return _fromGroups(kept, dynGrand);
+}
+
+function applyFilters() {
+  _filterText = (document.getElementById('filter-text').value || '').toLowerCase().trim();
+  _filterProd = document.getElementById('f_prod').checked;
+  _filterAdm  = document.getElementById('f_adm').checked;
+  if (_report)   { renderData(_report); renderCmp(_report); }
+  if (_paReport)   renderPeriodAnalysis(_paReport);
+}
+
+function resetFilters() {
+  document.getElementById('filter-text').value = '';
+  document.getElementById('f_prod').checked = true;
+  document.getElementById('f_adm').checked  = true;
+  _filterText = ''; _filterProd = true; _filterAdm = true;
+  if (_report)   { renderData(_report); renderCmp(_report); }
+  if (_paReport)   renderPeriodAnalysis(_paReport);
+}
+
+// ── Toggle category (capture mode — fires before tr.onclick to prevent collapse toggle) ──
+document.addEventListener('click', function(e) {
+  const span = e.target.closest('[data-cat-label]');
+  if (!span) return;
+  e.stopPropagation();   // prevent collapsible tr.onclick from firing
+  const label = span.dataset.catLabel;
+  const findIn = arr => arr && arr.find(r => r.label === label && r.type !== 'cat_head');
+  const src = (_report  && (findIn(_report.rows)  || findIn(_report.credit_rows)))
+           || (_paReport && (findIn(_paReport.rows) || findIn(_paReport.credit_rows)));
+  const current = _catOverrides[label] || (src ? src.category : 'Административные');
+  _catOverrides[label] = current === 'Производственные' ? 'Административные' : 'Производственные';
+  if (_report)   { renderData(_report); renderCmp(_report); }
+  if (_paReport)   renderPeriodAnalysis(_paReport);
+}, true /* capture — fires before bubbling, so before tr.onclick */);
+
 function apiUrl(path) {
   return `${API_BASE}${path}`;
 }
@@ -259,28 +625,187 @@ function normalizeText(s) {
     .trim();
 }
 
-// ── Period type toggle ──────────────────────────────────────────
-document.querySelectorAll('input[name="ptype"]').forEach(r => {
-  r.addEventListener('change', () => {
-    const v = r.value;
-    document.getElementById('f_month').style.display   = v === 'month'   ? '' : 'none';
-    document.getElementById('f_quarter').style.display = v === 'quarter' ? '' : 'none';
-  });
-});
+// ── Stale data helpers ──────────────────────────────────────────
+function markStale() {
+  if (!_report && !_paReport) return;
+  document.getElementById('stale-bar').classList.add('visible');
+  document.getElementById('table-wrap').classList.add('stale');
+}
+function clearStale() {
+  document.getElementById('stale-bar').classList.remove('visible');
+  document.getElementById('table-wrap').classList.remove('stale');
+}
 
-// Auto-fill old year = new year - 1
+// ── App mode toggle (Сравнение / Анализ за период) ──────────────
+function setAppMode(mode) {
+  const isCmp = mode === 'cmp';
+  document.getElementById('cmp-controls').style.display    = isCmp ? 'contents' : 'none';
+  document.getElementById('period-controls').style.display = isCmp ? 'none' : 'contents';
+  document.getElementById('tab-period').style.display      = 'none';
+  document.getElementById('btn_dl').style.display          = 'none';
+  markStale();
+}
+document.querySelectorAll('input[name="app_mode"]').forEach(r =>
+  r.addEventListener('change', () => setAppMode(r.value))
+);
+
+// ── Period type toggle (comparison mode) ────────────────────────
+const MONTH_OPTS = '<option value="1">Январь</option><option value="2">Февраль</option>' +
+  '<option value="3">Март</option><option value="4">Апрель</option>' +
+  '<option value="5">Май</option><option value="6">Июнь</option>' +
+  '<option value="7">Июль</option><option value="8">Август</option>' +
+  '<option value="9">Сентябрь</option><option value="10">Октябрь</option>' +
+  '<option value="11">Ноябрь</option><option value="12">Декабрь</option>';
+const QUARTER_OPTS = '<option value="1">Q1 (янв-мар)</option><option value="2">Q2 (апр-июн)</option>' +
+  '<option value="3">Q3 (июл-сен)</option><option value="4">Q4 (окт-дек)</option>';
+
+function updatePeriodFields() {
+  const v = document.querySelector('input[name="ptype"]:checked').value;
+  const isYear = v === 'year';
+  const isQuarter = v === 'quarter';
+  document.getElementById('f_pvalue_new').style.display = isYear ? 'none' : '';
+  document.getElementById('f_pvalue_old').style.display = isYear ? 'none' : '';
+  if (!isYear) {
+    document.getElementById('lbl_pvalue_new').textContent = isQuarter ? 'Квартал (новый)' : 'Месяц (новый)';
+    document.getElementById('lbl_pvalue_old').textContent = isQuarter ? 'Квартал (старый)' : 'Месяц (старый)';
+    const opts = isQuarter ? QUARTER_OPTS : MONTH_OPTS;
+    document.getElementById('sel_pvalue_new').innerHTML = opts;
+    document.getElementById('sel_pvalue_old').innerHTML = opts;
+  }
+  markStale();
+}
+document.querySelectorAll('input[name="ptype"]').forEach(r =>
+  r.addEventListener('change', updatePeriodFields)
+);
+
+// Auto-fill old year = new year - 1; mark stale on any param change
 document.getElementById('sel_year_new').addEventListener('change', function() {
   document.getElementById('sel_year_old').value = String(Number(this.value) - 1);
+  markStale();
 });
+['sel_year_old', 'sel_pvalue_new', 'sel_pvalue_old'].forEach(id =>
+  document.getElementById(id).addEventListener('change', markStale)
+);
+['pa_from','pa_to'].forEach(id =>
+  document.getElementById(id).addEventListener('change', markStale)
+);
+document.querySelectorAll('input[name="pa_interval"]').forEach(r =>
+  r.addEventListener('change', markStale)
+);
 
-function getParams() {
+// Quick preset buttons for period-analysis
+function setPreset(preset, btn) {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = today.getMonth() + 1; // 1-based
+  let fromDate, toDate, interval = 'month';
+
+  const pad = n => String(n).padStart(2, '0');
+  const lastDay = (yr, mo) => new Date(yr, mo, 0).getDate();
+
+  if (preset === 'cur_month') {
+    fromDate = `${y}-${pad(m)}-01`;
+    toDate   = `${y}-${pad(m)}-${pad(lastDay(y, m))}`;
+    interval = 'day';
+  } else if (preset === 'prev_month') {
+    const pm = m === 1 ? 12 : m - 1;
+    const py = m === 1 ? y - 1 : y;
+    fromDate = `${py}-${pad(pm)}-01`;
+    toDate   = `${py}-${pad(pm)}-${pad(lastDay(py, pm))}`;
+    interval = 'day';
+  } else if (preset === 'cur_quarter') {
+    const q = Math.ceil(m / 3);
+    const qs = (q - 1) * 3 + 1, qe = q * 3;
+    fromDate = `${y}-${pad(qs)}-01`;
+    toDate   = `${y}-${pad(qe)}-${pad(lastDay(y, qe))}`;
+    interval = 'month';
+  } else if (preset === 'prev_quarter') {
+    const q  = Math.ceil(m / 3);
+    const pq = q === 1 ? 4 : q - 1;
+    const py = q === 1 ? y - 1 : y;
+    const qs = (pq - 1) * 3 + 1, qe = pq * 3;
+    fromDate = `${py}-${pad(qs)}-01`;
+    toDate   = `${py}-${pad(qe)}-${pad(lastDay(py, qe))}`;
+    interval = 'month';
+  } else if (preset === 'cur_year') {
+    fromDate = `${y}-01-01`; toDate = `${y}-12-31`;
+    interval = 'month';
+  } else if (preset === 'prev_year') {
+    fromDate = `${y-1}-01-01`; toDate = `${y-1}-12-31`;
+    interval = 'month';
+  } else if (preset.startsWith('year_')) {
+    const yr = parseInt(preset.split('_')[1]);
+    fromDate = `${yr}-01-01`; toDate = `${yr}-12-31`;
+    interval = 'month';
+  }
+
+  document.getElementById('pa_from').value = fromDate;
+  document.getElementById('pa_to').value   = toDate;
+  const ivEl = document.querySelector(`input[name="pa_interval"][value="${interval}"]`);
+  if (ivEl) ivEl.checked = true;
+
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  markStale();
+}
+
+// Add historical year buttons dynamically
+function initPresetYears() {
+  const container = document.getElementById('preset-btns');
+  if (!container) return;
+  const curYear = new Date().getFullYear();
+  // separator
+  const sep = document.createElement('div');
+  sep.className = 'preset-group-sep';
+  container.appendChild(sep);
+  for (let yr = curYear - 2; yr >= curYear - 5; yr--) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'preset-btn';
+    b.textContent = String(yr);
+    b.onclick = () => setPreset('year_' + yr, b);
+    container.appendChild(b);
+  }
+}
+
+// Default dates for period-analysis pickers
+function initPeriodDates() {
+  const fromEl = document.getElementById('pa_from');
+  const toEl   = document.getElementById('pa_to');
+  if (!fromEl.value && !toEl.value) {
+    const btn = document.querySelector('.preset-btn[onclick*="cur_year"]');
+    setPreset('cur_year', btn);
+  }
+}
+
+// ── Params helpers ──────────────────────────────────────────────
+function getMode() {
+  return document.querySelector('input[name="app_mode"]:checked').value;
+}
+
+function getCmpParams() {
   const ptype = document.querySelector('input[name="ptype"]:checked').value;
+  const pvNew = ptype !== 'year' ? document.getElementById('sel_pvalue_new').value : '1';
+  const pvOld = ptype !== 'year' ? document.getElementById('sel_pvalue_old').value : '1';
   return {
-    period_type: ptype,
-    period_value: ptype === 'month' ? document.getElementById('sel_month').value
-                : ptype === 'quarter' ? document.getElementById('sel_quarter').value : '1',
+    period_type:      ptype,
+    period_value_new: pvNew,
+    period_value_old: pvOld,
     year_new: document.getElementById('sel_year_new').value,
     year_old: document.getElementById('sel_year_old').value,
+  };
+}
+
+function getPeriodParams() {
+  initPeriodDates();
+  const from = document.getElementById('pa_from').value;
+  const to   = document.getElementById('pa_to').value;
+  if (!from || !to)  { alert('Укажите обе даты периода.'); return null; }
+  if (from > to)     { alert('Дата «от» должна быть не позже даты «до».'); return null; }
+  return {
+    date_from: from,
+    date_to:   to,
+    interval:  document.querySelector('input[name="pa_interval"]:checked').value,
   };
 }
 
@@ -316,160 +841,681 @@ function crClass(r) {
   return 'cr-group';
 }
 
-// ── Render data rows ────────────────────────────────────────────
-function dataRowsHtml(rows, mn, classFn) {
-  let h = '';
+// ── Collapsible groups ──────────────────────────────────────────
+function toggleGroup(grpId, el) {
+  const details = document.querySelectorAll(`tr[data-parent="${grpId}"]`);
+  const expand = !el.classList.contains('expanded');
+  el.classList.toggle('expanded', expand);
+  details.forEach(r => r.style.display = expand ? '' : 'none');
+}
+
+function catBadge(r) {
+  if (!r.category || r.type === 'grand') return '<td></td>';
+  const cls  = r.category === 'Производственные' ? 'cat-prod' : 'cat-admin';
+  const text = r.category === 'Производственные' ? 'Произв.' : 'Адм.';
+  if (r.type === 'detail') {
+    return `<td><span class="cat-badge ${cls}" style="opacity:.65;font-size:9px">${text}</span></td>`;
+  }
+  const safeLabel = r.label.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  return `<td><span class="cat-badge cat-toggle ${cls}" data-cat-label="${safeLabel}" title="Нажмите для смены вида расходов">${text}</span></td>`;
+}
+
+function makeRowsHtml(rows, classFn, idPrefix, cellsFn) {
+  let h = '', grpCnt = 0, curGrpId = null;
   rows.forEach(r => {
+    if (r.type === 'cat_head') {
+      const catCls = r.category === 'Производственные' ? 'cat-head-prod' : 'cat-head-admin';
+      h += `<tr class="${catCls}"><td colspan="99">${r.label}</td></tr>`;
+      return;
+    }
     const cls = classFn(r);
     const title = normalizeText(r.label);
-    const lbl = r.type === 'detail' ? '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + title : title;
-    h += `<tr class="${cls}"><td>${lbl}</td>`;
-    (r.months_new || []).forEach(v => h += `<td>${fmt(v)}</td>`);
-    if (!r.months_new.length) mn.forEach(() => h += '<td></td>');
-    h += `<td>${fmt(r.avg_new)}</td><td>${fmt(r.total_new)}</td></tr>`;
+    let trOpen, labelHtml;
+    if (r.type === 'group' && !r.single) {
+      curGrpId = idPrefix + (grpCnt++);
+      trOpen = `<tr class="${cls} collapsible" data-grp="${curGrpId}" onclick="toggleGroup('${curGrpId}',this)">`;
+      labelHtml = title;
+    } else if (r.type === 'detail') {
+      trOpen = `<tr class="${cls}" data-parent="${curGrpId}" style="display:none">`;
+      labelHtml = '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + title;
+    } else {
+      curGrpId = null;
+      trOpen = `<tr class="${cls}">`;
+      labelHtml = title;
+    }
+    h += trOpen + `<td>${labelHtml}</td>` + catBadge(r) + cellsFn(r) + '</tr>';
   });
   return h;
+}
+
+// ── Render data rows ────────────────────────────────────────────
+function dataRowsHtml(rows, mn, classFn, idPrefix) {
+  return makeRowsHtml(rows, classFn, idPrefix, r => {
+    let cells = '';
+    (r.months_new || []).forEach(v => cells += `<td>${fmt(v)}</td>`);
+    if (!(r.months_new || []).length) mn.forEach(() => cells += '<td></td>');
+    cells += `<td>${fmt(r.avg_new)}</td><td>${fmt(r.total_new)}</td>`;
+    return cells;
+  });
 }
 
 function renderData(rpt) {
   const mn = rpt.month_names;
   const ncols = mn.length + 2;
-  let h = '<table><thead><tr><th>Статья / Группа</th>';
+  let h = '<table><thead><tr><th>Статья / Группа</th><th>Вид расходов</th>';
   mn.forEach(m => h += `<th>${m} ${rpt.year_new}</th>`);
   h += '<th>Среднее/мес</th><th>Итого</th></tr></thead><tbody>';
 
-  // Revenue row
+  // Revenue row (collapsible if breakdown available)
   const revM = rpt.rev_new_months || [];
   const revSum = rpt.rev_new || 0;
   const revAvg = mn.length ? Math.round(revSum / mn.length) : 0;
-  h += `<tr class="revenue"><td>ВЫРУЧКА</td>`;
-  revM.forEach(v => h += `<td>${fmt(v)}</td>`);
-  if (!revM.length) mn.forEach(() => h += '<td></td>');
-  h += `<td>${fmt(revAvg)}</td><td>${fmt(revSum)}</td></tr>`;
+  const revBdn = rpt.rev_breakdown_new || [];
+  const revGrpId = 'rev-data-grp';
+  if (revBdn.length) {
+    h += `<tr class="revenue collapsible" data-grp="${revGrpId}" onclick="toggleGroup('${revGrpId}',this)">
+      <td>ВЫРУЧКА</td><td></td>`;
+    revM.forEach(v => h += `<td>${fmt(v)}</td>`);
+    if (!revM.length) mn.forEach(() => h += '<td></td>');
+    h += `<td>${fmt(revAvg)}</td><td>${fmt(revSum)}</td></tr>`;
+    revBdn.forEach(item => {
+      const avg = mn.length ? Math.round(item.total / mn.length) : 0;
+      h += `<tr class="revenue-detail" data-parent="${revGrpId}" style="display:none">
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;${normalizeText(item.label)}</td><td></td>`;
+      (item.months || []).forEach(v => h += `<td>${fmt(v)}</td>`);
+      if (!(item.months||[]).length) mn.forEach(() => h += '<td></td>');
+      h += `<td>${fmt(avg)}</td><td>${fmt(item.total)}</td></tr>`;
+    });
+  } else {
+    h += `<tr class="revenue"><td>ВЫРУЧКА</td><td></td>`;
+    revM.forEach(v => h += `<td>${fmt(v)}</td>`);
+    if (!revM.length) mn.forEach(() => h += '<td></td>');
+    h += `<td>${fmt(revAvg)}</td><td>${fmt(revSum)}</td></tr>`;
+  }
 
-  h += dataRowsHtml(rpt.rows, mn, rowClass);
+  h += dataRowsHtml(filterRows(applyOverridesAndSort(rpt.rows || []), rpt.months ? rpt.months.length : 1), mn, rowClass, 'd-');
 
   if (rpt.credit_rows && rpt.credit_rows.length) {
-    h += `<tr class="credit-head"><td colspan="${ncols + 1}">КРЕДИТЫ И ЗАЙМЫ</td></tr>`;
-    h += dataRowsHtml(rpt.credit_rows, mn, crClass);
+    h += `<tr class="credit-head"><td colspan="99">КРЕДИТЫ И ЗАЙМЫ</td></tr>`;
+    h += dataRowsHtml(rpt.credit_rows, mn, crClass, 'dc-');
   }
   h += '</tbody></table>';
   document.getElementById('data-table').innerHTML = h;
 }
 
 // ── Render comparison rows ──────────────────────────────────────
-function cmpRowsHtml(rows, classFn) {
-  let h = '';
-  rows.forEach(r => {
-    const cls = classFn(r);
-    const title = normalizeText(r.label);
-    const lbl = r.type === 'detail' ? '&nbsp;&nbsp;&nbsp;&nbsp;в т.ч. ' + title : title;
+function cmpRowsHtml(rows, classFn, idPrefix) {
+  return makeRowsHtml(rows, classFn, idPrefix, r => {
     const dCls = r.delta > 0 ? 'up' : r.delta < 0 ? 'down' : 'flat';
-    h += `<tr class="${cls}">
-      <td>${lbl}</td>
-      <td>${fmt(r.total_old)}</td><td>${fmt(r.total_new)}</td>
+    return `<td>${fmt(r.total_old)}</td><td>${fmt(r.total_new)}</td>
       <td><span class="${dCls}">${r.delta > 0 ? '+' : ''}${fmt(r.delta)}</span></td>
       <td>${fmtPct(r.pct)}</td>
       <td class="assess">${normalizeText(r.assess || '')}</td>
       <td>${fmtRevPct(r.pct_rev_old)}</td>
       <td>${fmtRevPct(r.pct_rev_new)}</td>
-      <td>${fmtPP(r.delta_pp)}</td>
-    </tr>`;
+      <td>${fmtPP(r.delta_pp)}</td>`;
   });
-  return h;
 }
 
 function renderCmp(rpt) {
-  const yn = rpt.year_new, yo = rpt.year_old;
+  const lblNew = rpt.period_label_new || (rpt.period_label + ' ' + rpt.year_new);
+  const lblOld = rpt.period_label_old || (rpt.period_label + ' ' + rpt.year_old);
   let h = `<table><thead><tr>
-    <th>Статья / Группа</th>
-    <th>${rpt.period_label} ${yo}</th><th>${rpt.period_label} ${yn}</th>
+    <th>Статья / Группа</th><th>Вид расходов</th>
+    <th>${lblOld}</th><th>${lblNew}</th>
     <th>Изменение</th><th>Тренд %</th><th>Оценка</th>
-    <th>% выр. ${yo}</th><th>% выр. ${yn}</th><th>&Delta; пп</th>
+    <th>% выр. ${lblOld}</th><th>% выр. ${lblNew}</th><th>&Delta; пп</th>
     </tr></thead><tbody>`;
 
-  // Revenue row
+  // Revenue row (collapsible if breakdown available)
   const revOld = rpt.rev_old || 0, revNew = rpt.rev_new || 0;
   const revD = rpt.rev_delta || 0, revP = rpt.rev_pct || 0;
-  const revDCls = revD > 0 ? 'down' : revD < 0 ? 'up' : 'flat';  // down=blue=good for revenue
-  h += `<tr class="revenue">
-    <td>ВЫРУЧКА</td>
-    <td>${fmt(revOld)}</td><td>${fmt(revNew)}</td>
+  const revDCls = revD > 0 ? 'down' : revD < 0 ? 'up' : 'flat';
+  const revBdnNew = rpt.rev_breakdown_new || [];
+  const revBdnOld = rpt.rev_breakdown_old || [];
+  const cRevGrpId = 'rev-cmp-grp';
+  const revAssess = Math.abs(revP) > 20 ? (revP > 0 ? 'рост' : 'снижение') : 'стабильно';
+  const revRowCells = `<td>${fmt(revOld)}</td><td>${fmt(revNew)}</td>
     <td><span class="${revDCls}">${revD > 0 ? '+' : ''}${fmt(revD)}</span></td>
     <td>${fmtPct(revP)}</td>
-    <td class="assess">${Math.abs(revP) > 20 ? (revP > 0 ? 'рост' : 'снижение') : 'стабильно'}</td>
-    <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
-  </tr>`;
+    <td class="assess">${revAssess}</td>
+    <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>`;
+  if (revBdnNew.length || revBdnOld.length) {
+    h += `<tr class="revenue collapsible" data-grp="${cRevGrpId}" onclick="toggleGroup('${cRevGrpId}',this)">
+      <td>ВЫРУЧКА</td><td></td>${revRowCells}</tr>`;
+    // Merge labels from both periods
+    const allRevLabels = [...new Set([...revBdnNew.map(r=>r.label), ...revBdnOld.map(r=>r.label)])];
+    allRevLabels.forEach(lbl => {
+      const ni = revBdnNew.find(r => r.label === lbl);
+      const oi = revBdnOld.find(r => r.label === lbl);
+      const nt = ni ? ni.total : 0, ot = oi ? oi.total : 0;
+      const dd = nt - ot;
+      const ddCls = dd > 0 ? 'down' : dd < 0 ? 'up' : 'flat';
+      h += `<tr class="revenue-detail" data-parent="${cRevGrpId}" style="display:none">
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;${normalizeText(lbl)}</td><td></td>
+        <td>${fmt(ot)}</td><td>${fmt(nt)}</td>
+        <td><span class="${ddCls}">${dd > 0 ? '+' : ''}${fmt(dd)}</span></td>
+        <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>`;
+    });
+  } else {
+    h += `<tr class="revenue"><td>ВЫРУЧКА</td><td></td>${revRowCells}</tr>`;
+  }
 
-  h += cmpRowsHtml(rpt.rows, rowClass);
+  h += cmpRowsHtml(filterRows(applyOverridesAndSort(rpt.rows || []), rpt.months ? rpt.months.length : 1), rowClass, 'c-');
 
   if (rpt.credit_rows && rpt.credit_rows.length) {
-    h += `<tr class="credit-head"><td colspan="9">КРЕДИТЫ И ЗАЙМЫ</td></tr>`;
-    h += cmpRowsHtml(rpt.credit_rows, crClass);
+    h += `<tr class="credit-head"><td colspan="99">КРЕДИТЫ И ЗАЙМЫ</td></tr>`;
+    h += cmpRowsHtml(rpt.credit_rows, crClass, 'cc-');
   }
   h += '</tbody></table>';
   document.getElementById('cmp-table').innerHTML = h;
 }
 
-// ── Tabs ────────────────────────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t =>
-    t.classList.toggle('active', t.dataset.tab === tab));
-  document.getElementById('data-table').style.display = tab === 'data' ? '' : 'none';
-  document.getElementById('cmp-table').style.display  = tab === 'cmp'  ? '' : 'none';
+// ── Period analysis rendering ────────────────────────────────────
+function renderPeriodAnalysis(pa) {
+  const lbls    = pa.interval_labels || [];
+  const rows    = pa.rows            || [];
+  const credits = pa.credit_rows     || [];
+  const revRow  = pa.rev_row         || {};
+  const rev     = pa.rev_total       || 0;
+  const exp     = pa.exp_total       || 0;
+
+  function paClass(r, pfx) {
+    if (r.type === 'grand')  return pfx + 'grand';
+    if (r.type === 'detail') return pfx + 'detail';
+    if (r.single)            return pfx + 'single';
+    return pfx + 'group';
+  }
+  function pctBar(val, total) {
+    if (!total || !val) return '&mdash;';
+    const p = val / total * 100;
+    const w = Math.round(Math.min(p, 100) * 0.7);
+    return '<div class="bar-cell"><span>' + p.toFixed(1) + '%</span>' +
+           '<div class="bar" style="width:' + w + 'px"></div></div>';
+  }
+  function paClassFn(pfx) {
+    return function(r) { return paClass(r, pfx); };
+  }
+  function paCellsFn(r) {
+    const pRev = r.pct_rev;
+    let cells = '';
+    (r.iv_values || []).forEach(function(v){ cells += '<td>' + fmt(v) + '</td>'; });
+    if (!(r.iv_values || []).length) lbls.forEach(function(){ cells += '<td></td>'; });
+    cells += '<td>' + fmt(r.avg) + '</td>';
+    cells += '<td>' + fmt(r.total) + '</td>';
+    cells += '<td>' + pctBar(r.total, exp) + '</td>';
+    cells += '<td>' + (pRev != null ? pRev.toFixed(1) + '%' : '&mdash;') + '</td>';
+    return cells;
+  }
+
+  const profit    = rev - exp;
+  const profitPct = rev ? (profit / rev * 100).toFixed(1) : '—';
+  const expPct    = rev ? (exp / rev * 100).toFixed(1) : '—';
+  const fromFmt   = pa.date_from ? pa.date_from.split('-').reverse().join('.') : '';
+  const toFmt     = pa.date_to   ? pa.date_to.split('-').reverse().join('.')   : '';
+
+  let html = '<div class="period-summary">' +
+    '<div class="period-kpi kpi-rev"><div class="kpi-label">Выручка</div>' +
+      '<div class="kpi-value">' + fmt(rev) + '</div>' +
+      '<div class="kpi-sub">' + fromFmt + ' — ' + toFmt + '</div></div>' +
+    '<div class="period-kpi kpi-exp"><div class="kpi-label">Расходы</div>' +
+      '<div class="kpi-value">' + fmt(exp) + '</div>' +
+      '<div class="kpi-sub">' + expPct + '% от выручки</div></div>' +
+    '<div class="period-kpi kpi-profit"><div class="kpi-label">Прибыль (оценочно)</div>' +
+      '<div class="kpi-value">' + fmt(profit) + '</div>' +
+      '<div class="kpi-sub">маржа ' + profitPct + '%</div></div>' +
+    '</div>';
+
+  const ncols = lbls.length + 4;
+  html += '<table><thead><tr><th style="text-align:left;min-width:260px">Статья / Группа</th><th>Вид расходов</th>';
+  lbls.forEach(function(l){ html += '<th>' + l + '</th>'; });
+  html += '<th>Среднее</th><th>Итого</th><th>% расходов</th><th>% выручки</th></tr></thead><tbody>';
+
+  // Revenue row (collapsible if breakdown available)
+  const revBdn = pa.rev_breakdown || [];
+  const paRevGrpId = 'rev-pa-grp';
+  if (revBdn.length) {
+    html += '<tr class="pa-revenue collapsible" data-grp="' + paRevGrpId + '" onclick="toggleGroup(\'' + paRevGrpId + '\',this)"><td>ВЫРУЧКА</td><td></td>';
+    (revRow.iv_values || []).forEach(function(v){ html += '<td>' + fmt(v) + '</td>'; });
+    if (!(revRow.iv_values||[]).length) lbls.forEach(function(){ html += '<td></td>'; });
+    html += '<td>' + fmt(revRow.avg) + '</td><td>' + fmt(rev) + '</td><td>&mdash;</td><td>&mdash;</td></tr>';
+    revBdn.forEach(function(item) {
+      html += '<tr class="pa-revenue-detail" data-parent="' + paRevGrpId + '" style="display:none"><td>&nbsp;&nbsp;&nbsp;&nbsp;' + normalizeText(item.label) + '</td><td></td>';
+      (item.iv_values || []).forEach(function(v){ html += '<td>' + fmt(v) + '</td>'; });
+      if (!(item.iv_values||[]).length) lbls.forEach(function(){ html += '<td></td>'; });
+      html += '<td>' + fmt(item.avg) + '</td><td>' + fmt(item.total) + '</td><td>&mdash;</td><td>&mdash;</td></tr>';
+    });
+  } else {
+    html += '<tr class="pa-revenue"><td>ВЫРУЧКА</td><td></td>';
+    (revRow.iv_values || []).forEach(function(v){ html += '<td>' + fmt(v) + '</td>'; });
+    if (!(revRow.iv_values||[]).length) lbls.forEach(function(){ html += '<td></td>'; });
+    html += '<td>' + fmt(revRow.avg) + '</td><td>' + fmt(rev) + '</td><td>&mdash;</td><td>&mdash;</td></tr>';
+  }
+
+  html += makeRowsHtml(filterRows(applyOverridesAndSort(rows), lbls.length), paClassFn('pa-'), 'p-', paCellsFn);
+
+  if (credits.length) {
+    html += '<tr class="pa-credit-head"><td colspan="99">КРЕДИТЫ И ЗАЙМЫ</td></tr>';
+    html += makeRowsHtml(credits, paClassFn('pa-cr-'), 'pc-', paCellsFn);
+  }
+
+  html += '</tbody></table>';
+  document.getElementById('period-table').innerHTML = html;
 }
 
-// ── Generate ────────────────────────────────────────────────────
-async function generate() {
+// ── Tabs ────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.getElementById('data-table').style.display   = tab === 'data'   ? '' : 'none';
+  document.getElementById('cmp-table').style.display    = tab === 'cmp'    ? '' : 'none';
+  document.getElementById('period-table').style.display = tab === 'period' ? '' : 'none';
+  document.getElementById('dash-table').style.display   = tab === 'dash'   ? '' : 'none';
+}
+
+// ── Comparison generate ─────────────────────────────────────────
+let _paReport = null;
+
+async function generateCmp() {
+  const params = getCmpParams();
   const btn = document.getElementById('btn_go');
   btn.disabled = true;
   document.getElementById('spinner').style.display = 'inline-block';
-
   try {
     const resp = await fetch(apiUrl('/api/report'), {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(getParams()),
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(params),
     });
     _report = await resp.json();
+    if (_report.error) { alert('Ошибка: ' + _report.error); return; }
 
     renderData(_report);
     renderCmp(_report);
-
+    document.getElementById('tab-period').style.display = 'none';
+    document.getElementById('tab-dash').style.display   = '';
+    document.querySelector('[data-tab="data"]').style.display = '';
+    document.querySelector('[data-tab="cmp"]').style.display  = '';
+    clearStale();
     document.getElementById('empty').style.display = 'none';
-    document.getElementById('tabs').style.display = '';
-    switchTab('cmp');  // show comparison by default
+    document.getElementById('tabs').style.display  = '';
+    document.getElementById('filter-bar').classList.add('visible');
+    switchTab('cmp');
+    renderDashboard('cmp');
 
-    // Info bar
     const ib = document.getElementById('info-bar');
-    ib.innerHTML = `<span>${normalizeText(_report.period_label)} ${_report.year_new} vs ${_report.year_old}</span> &nbsp;|&nbsp; ` +
-      `Выручка ${_report.year_old}: <span>${fmt(_report.rev_old)} &#8381;</span> &nbsp;|&nbsp; ` +
-      `Выручка ${_report.year_new}: <span>${fmt(_report.rev_new)} &#8381;</span>`;
+    const lblNew = _report.period_label_new || (_report.period_label + ' ' + _report.year_new);
+    const lblOld = _report.period_label_old || (_report.period_label + ' ' + _report.year_old);
+    ib.innerHTML = '<span>' + normalizeText(lblNew) + ' vs ' + normalizeText(lblOld) +
+      '</span> &nbsp;|&nbsp; Выручка ' + normalizeText(lblOld) +
+      ': <span>' + fmt(_report.rev_old) + ' &#8381;</span> &nbsp;|&nbsp; Выручка ' +
+      normalizeText(lblNew) + ': <span>' + fmt(_report.rev_new) + ' &#8381;</span>';
     ib.style.display = '';
     document.getElementById('btn_dl').style.display = '';
-  } catch (e) {
-    alert('Ошибка: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    document.getElementById('spinner').style.display = 'none';
-  }
+  } catch (e) { alert('Ошибка: ' + e.message); }
+  finally { btn.disabled = false; document.getElementById('spinner').style.display = 'none'; }
 }
 
-// ── Download XLSX ───────────────────────────────────────────────
+// ── Period analysis generate ────────────────────────────────────
+async function generatePeriodAnalysis() {
+  const params = getPeriodParams();
+  if (!params) return;
+  const btn = document.getElementById('btn_go');
+  btn.disabled = true;
+  document.getElementById('spinner').style.display = 'inline-block';
+  try {
+    const resp = await fetch(apiUrl('/api/period-analysis'), {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(params),
+    });
+    _paReport = await resp.json();
+    if (_paReport.error) { alert('Ошибка: ' + _paReport.error); return; }
+
+    renderPeriodAnalysis(_paReport);
+    document.getElementById('tab-period').style.display = '';
+    document.getElementById('tab-dash').style.display   = '';
+    document.querySelector('[data-tab="data"]').style.display = 'none';
+    document.querySelector('[data-tab="cmp"]').style.display  = 'none';
+    clearStale();
+    document.getElementById('empty').style.display = 'none';
+    document.getElementById('tabs').style.display  = '';
+    document.getElementById('filter-bar').classList.add('visible');
+    switchTab('period');
+    renderDashboard('period');
+
+    const fromFmt = params.date_from.split('-').reverse().join('.');
+    const toFmt   = params.date_to.split('-').reverse().join('.');
+    const ib = document.getElementById('info-bar');
+    ib.innerHTML = 'Анализ за период: <span>' + fromFmt + ' — ' + toFmt + '</span>' +
+      ' &nbsp;|&nbsp; Выручка: <span>' + fmt(_paReport.rev_total) + ' &#8381;</span>' +
+      ' &nbsp;|&nbsp; Расходы: <span>' + fmt(_paReport.exp_total) + ' &#8381;</span>';
+    ib.style.display = '';
+    document.getElementById('btn_dl').style.display = '';
+  } catch (e) { alert('Ошибка: ' + e.message); }
+  finally { btn.disabled = false; document.getElementById('spinner').style.display = 'none'; }
+}
+
+// ── Main dispatcher ─────────────────────────────────────────────
+function onGenerate() {
+  if (getMode() === 'period') generatePeriodAnalysis();
+  else generateCmp();
+}
+
+// ── Download dispatcher ──────────────────────────────────────────
+function onDownload() {
+  if (getMode() === 'period') downloadPeriod();
+  else download();
+}
+
+// Restore Данные/Сравнение tabs when switching back to comparison mode
+document.getElementById('mode_cmp').addEventListener('change', function() {
+  document.querySelector('[data-tab="data"]').style.display = '';
+  document.querySelector('[data-tab="cmp"]').style.display  = '';
+  document.getElementById('tab-period').style.display = 'none';
+  if (_report) {
+    document.getElementById('tab-dash').style.display = '';
+    renderDashboard('cmp');
+  } else {
+    document.getElementById('tab-dash').style.display = 'none';
+  }
+});
+
+// ── Download XLSX (comparison mode) ─────────────────────────────
 async function download() {
+  const params = getCmpParams();
   const resp = await fetch(apiUrl('/api/download'), {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(getParams()),
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(params),
   });
+  if (!resp.ok) { const e = await resp.json().catch(()=>({})); alert('Ошибка: ' + (e.error || resp.status)); return; }
   const blob = await resp.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = resp.headers.get('content-disposition')?.split('filename=')[1]
-    || `comparison_${_report.year_new}_vs_${_report.year_old}.xlsx`;
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  const lblNew = (_report ? (_report.period_label_new || _report.period_label || String(_report.year_new)) : '').replace(/[\s,–]+/g, '_');
+  const lblOld = (_report ? (_report.period_label_old || _report.period_label || String(_report.year_old)) : '').replace(/[\s,–]+/g, '_');
+  a.download = `comparison_${lblNew}_vs_${lblOld}.xlsx`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ── Download XLSX (period analysis mode) ─────────────────────────
+async function downloadPeriod() {
+  const params = getPeriodParams();
+  if (!params) return;
+  const resp = await fetch(apiUrl('/api/download-period'), {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(params),
+  });
+  if (!resp.ok) { const e = await resp.json().catch(()=>({})); alert('Ошибка: ' + (e.error || resp.status)); return; }
+  const blob = await resp.blob();
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `period_${params.date_from}_${params.date_to}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Dashboard ────────────────────────────────────────────────────
+const _charts = {};
+function _destroyChart(id) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+}
+
+function renderDashboard(mode) {
+  const rpt = mode === 'period' ? _paReport : _report;
+  if (!rpt) return;
+
+  // Collect group-level expense rows (non-credit, non-cat_head, non-grand, non-detail)
+  const expRows = (rpt.rows || []).filter(r =>
+    r.type !== 'cat_head' && r.type !== 'grand' && r.type !== 'detail');
+
+  // Category totals
+  const catTotals = { 'Производственные': 0, 'Административные': 0 };
+  expRows.forEach(r => {
+    const cat = _catOverrides[r.label] || r.category || 'Административные';
+    const val = mode === 'period' ? (r.total || 0) : (r.total_new || 0);
+    catTotals[cat] = (catTotals[cat] || 0) + val;
+  });
+
+  // Top-10 groups by value (sorted descending)
+  const topN = 12;
+  const sorted = expRows.slice().sort((a, b) => {
+    const va = mode === 'period' ? (a.total || 0) : (a.total_new || 0);
+    const vb = mode === 'period' ? (b.total || 0) : (b.total_new || 0);
+    return vb - va;
+  }).slice(0, topN);
+
+  let html = '<div class="dash-grid">';
+
+  if (mode === 'cmp') {
+    // Chart 1: top groups comparison (horizontal bar)
+    html += `<div class="chart-card wide"><h3>Топ статей расходов (${rpt.period_label_new} vs ${rpt.period_label_old})</h3>
+      <div class="chart-wrap"><canvas id="dc-bar"></canvas></div></div>`;
+    // Chart 2: category split new period (doughnut)
+    html += `<div class="chart-card"><h3>Структура расходов — ${rpt.period_label_new}</h3>
+      <div class="chart-wrap"><canvas id="dc-donut"></canvas></div></div>`;
+    // Chart 3: revenue vs expenses
+    html += `<div class="chart-card"><h3>Выручка и расходы</h3>
+      <div class="chart-wrap"><canvas id="dc-revexp"></canvas></div></div>`;
+    // Chart 4: expense share in revenue per article
+    html += `<div class="chart-card wide"><h3>Доля расходов в выручке по статьям (% от выручки) — ${rpt.period_label_old} vs ${rpt.period_label_new}</h3>
+      <div class="chart-wrap"><canvas id="dc-pctrev"></canvas></div></div>`;
+  } else {
+    // Chart 1: expenses over time (bar)
+    html += `<div class="chart-card wide"><h3>Расходы по периодам</h3>
+      <div class="chart-wrap"><canvas id="dc-timeline"></canvas></div></div>`;
+    // Chart 2: top groups (horizontal bar)
+    html += `<div class="chart-card"><h3>Топ статей расходов</h3>
+      <div class="chart-wrap"><canvas id="dc-top"></canvas></div></div>`;
+    // Chart 3: category split (doughnut)
+    html += `<div class="chart-card"><h3>Структура расходов</h3>
+      <div class="chart-wrap"><canvas id="dc-donut2"></canvas></div></div>`;
+    // Chart 4: expense share in revenue per article
+    html += `<div class="chart-card wide"><h3>Доля расходов в выручке по статьям (% от выручки)</h3>
+      <div class="chart-wrap"><canvas id="dc-pctrev2"></canvas></div></div>`;
+  }
+
+  html += '</div>';
+  document.getElementById('dash-table').innerHTML = html;
+
+  const PROD_CLR  = '#1b7a3d'; const ADM_CLR = '#1a3a5c';
+  const OLD_CLR   = '#94a3b8'; const NEW_CLR  = '#2980b9';
+  const BAR_CLRS  = ['#2980b9','#1a3a5c','#1b7a3d','#e67e22','#8e44ad',
+                     '#c0392b','#16a085','#d35400','#2c3e50','#7f8c8d',
+                     '#27ae60','#f39c12'];
+
+  if (mode === 'cmp') {
+    // Bar: top groups old vs new
+    _destroyChart('dc-bar');
+    const labelsBar = sorted.map(r => r.label.length > 28 ? r.label.slice(0,27)+'…' : r.label);
+    _charts['dc-bar'] = new Chart(document.getElementById('dc-bar'), {
+      type: 'bar',
+      data: {
+        labels: labelsBar,
+        datasets: [
+          { label: rpt.period_label_old, data: sorted.map(r => r.total_old || 0),
+            backgroundColor: OLD_CLR, borderRadius: 3 },
+          { label: rpt.period_label_new, data: sorted.map(r => r.total_new || 0),
+            backgroundColor: NEW_CLR, borderRadius: 3 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { ticks: { font: { size: 10 }, maxRotation: 35 } },
+          y: { ticks: { callback: v => (v/1000).toFixed(0) + ' т.р.' } }
+        }
+      }
+    });
+
+    // Donut: category split
+    _destroyChart('dc-donut');
+    _charts['dc-donut'] = new Chart(document.getElementById('dc-donut'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Производственные', 'Административные'],
+        datasets: [{ data: [catTotals['Производственные'], catTotals['Административные']],
+          backgroundColor: [PROD_CLR, ADM_CLR], borderWidth: 2 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: ctx => ' ' + (ctx.raw/1000).toFixed(0) + ' т.р.' } }
+        }
+      }
+    });
+
+    // Bar: revenue vs expenses
+    _destroyChart('dc-revexp');
+    _charts['dc-revexp'] = new Chart(document.getElementById('dc-revexp'), {
+      type: 'bar',
+      data: {
+        labels: [rpt.period_label_old, rpt.period_label_new],
+        datasets: [
+          { label: 'Выручка',  data: [rpt.rev_old  || 0, rpt.rev_new  || 0], backgroundColor: PROD_CLR, borderRadius: 4 },
+          { label: 'Расходы',  data: [
+              (rpt.rows || []).filter(r=>r.type==='grand')[0]?.total_old || 0,
+              (rpt.rows || []).filter(r=>r.type==='grand')[0]?.total_new || 0
+            ], backgroundColor: ADM_CLR, borderRadius: 4 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { ticks: { callback: v => (v/1000).toFixed(0) + ' т.р.' } } }
+      }
+    });
+
+    // Horizontal bar: expense share in revenue per article (% of revenue)
+    _destroyChart('dc-pctrev');
+    const pctSorted = sorted.filter(r => r.pct_rev_new != null || r.pct_rev_old != null)
+      .slice().sort((a, b) => (b.pct_rev_new || 0) - (a.pct_rev_new || 0));
+    const pctLabels = pctSorted.map(r => r.label.length > 30 ? r.label.slice(0,29)+'…' : r.label);
+    _charts['dc-pctrev'] = new Chart(document.getElementById('dc-pctrev'), {
+      type: 'bar',
+      data: {
+        labels: pctLabels,
+        datasets: [
+          { label: rpt.period_label_old + ' (% выр.)', data: pctSorted.map(r => r.pct_rev_old || 0),
+            backgroundColor: OLD_CLR, borderRadius: 3 },
+          { label: rpt.period_label_new + ' (% выр.)', data: pctSorted.map(r => r.pct_rev_new || 0),
+            backgroundColor: NEW_CLR, borderRadius: 3 },
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.raw.toFixed(1) + '%' } }
+        },
+        scales: {
+          x: { ticks: { callback: v => v.toFixed(1) + '%', font: { size: 10 } },
+               title: { display: true, text: '% от выручки', font: { size: 10 } } },
+          y: { ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+
+  } else {
+    // Timeline: total expenses by interval
+    const grand = (rpt.rows || []).find(r => r.type === 'grand');
+    _destroyChart('dc-timeline');
+    _charts['dc-timeline'] = new Chart(document.getElementById('dc-timeline'), {
+      type: 'bar',
+      data: {
+        labels: rpt.interval_labels || [],
+        datasets: [
+          { label: 'Расходы', data: grand ? grand.iv_values : [], backgroundColor: ADM_CLR, borderRadius: 3, order: 2 },
+          { label: 'Выручка', data: (rpt.rev_row || {}).iv_values || [],
+            type: 'line', borderColor: PROD_CLR, backgroundColor: 'transparent',
+            pointBackgroundColor: PROD_CLR, tension: 0.3, borderWidth: 2, order: 1 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { ticks: { font: { size: 10 }, maxRotation: 35 } },
+          y: { ticks: { callback: v => (v/1000).toFixed(0) + ' т.р.' } }
+        }
+      }
+    });
+
+    // Top groups horizontal bar
+    _destroyChart('dc-top');
+    const labelsTop = sorted.map(r => r.label.length > 30 ? r.label.slice(0,29)+'…' : r.label);
+    _charts['dc-top'] = new Chart(document.getElementById('dc-top'), {
+      type: 'bar',
+      data: {
+        labels: labelsTop,
+        datasets: [{ label: 'Итого', data: sorted.map(r => r.total || 0),
+          backgroundColor: sorted.map((_, i) => BAR_CLRS[i % BAR_CLRS.length]), borderRadius: 3 }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: v => (v/1000).toFixed(0) + ' т.р.', font: { size: 10 } } },
+          y: { ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+
+    // Category donut
+    _destroyChart('dc-donut2');
+    _charts['dc-donut2'] = new Chart(document.getElementById('dc-donut2'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Производственные', 'Административные'],
+        datasets: [{ data: [catTotals['Производственные'], catTotals['Административные']],
+          backgroundColor: [PROD_CLR, ADM_CLR], borderWidth: 2 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: ctx => ' ' + (ctx.raw/1000).toFixed(0) + ' т.р.' } }
+        }
+      }
+    });
+
+    // Horizontal bar: expense share in revenue per article
+    _destroyChart('dc-pctrev2');
+    const pctSorted2 = sorted.filter(r => r.pct_rev != null)
+      .slice().sort((a, b) => (b.pct_rev || 0) - (a.pct_rev || 0));
+    const pctLabels2 = pctSorted2.map(r => r.label.length > 30 ? r.label.slice(0,29)+'…' : r.label);
+    _charts['dc-pctrev2'] = new Chart(document.getElementById('dc-pctrev2'), {
+      type: 'bar',
+      data: {
+        labels: pctLabels2,
+        datasets: [{
+          label: '% от выручки',
+          data: pctSorted2.map(r => r.pct_rev || 0),
+          backgroundColor: pctSorted2.map((_, i) => BAR_CLRS[i % BAR_CLRS.length]),
+          borderRadius: 3
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.raw.toFixed(1) + '%' } }
+        },
+        scales: {
+          x: { ticks: { callback: v => v.toFixed(1) + '%', font: { size: 10 } },
+               title: { display: true, text: '% от выручки', font: { size: 10 } } },
+          y: { ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+  }
 }
 
 function openUploadModal() {
@@ -486,6 +1532,43 @@ async function refreshFileInfo() {
   const resp = await fetch(apiUrl('/api/file-info'));
   const data = await resp.json();
   document.getElementById('file-name').textContent = data.name || '—';
+  // Highlight Google Sheets button if connected
+  const gsBtn = document.getElementById('btn_gs');
+  if (data.source === 'gsheets') {
+    gsBtn.classList.add('connected');
+    gsBtn.title = 'Данные из Google Sheets — нажмите для обновления';
+  } else {
+    gsBtn.classList.remove('connected', 'error');
+    gsBtn.title = 'Обновить данные из Google Sheets';
+  }
+}
+
+async function syncGSheets() {
+  const btn = document.getElementById('btn_gs');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Загрузка…';
+  btn.classList.remove('connected', 'error');
+  try {
+    const resp = await fetch(apiUrl('/api/gsheets-sync'), { method: 'POST' });
+    const data = await resp.json();
+    if (data.ok) {
+      btn.classList.add('connected');
+      btn.title = 'Данные из Google Sheets — нажмите для обновления';
+      if (data.file_info) document.getElementById('file-name').textContent = data.file_info.name;
+      markStale();
+      alert('✓ ' + data.message);
+    } else {
+      btn.classList.add('error');
+      alert('Ошибка подключения к Google Sheets:\n\n' + data.error);
+    }
+  } catch (e) {
+    btn.classList.add('error');
+    alert('Ошибка: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
 }
 
 async function checkBackend() {
@@ -542,12 +1625,14 @@ async function uploadFile() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const fileNameEl = document.getElementById('file-name');
-  if (fileNameEl.textContent.includes('{{')) fileNameEl.textContent = 'system_dds_allada.xlsx';
+  if (fileNameEl.textContent.includes('{' + '{')) fileNameEl.textContent = 'system_dds_allada.xlsx';
   if (window.location.protocol === 'file:') {
     const ib = document.getElementById('info-bar');
     ib.innerHTML = '<span>Внимание:</span> страница открыта как файл. Для API используется http://127.0.0.1:5000';
     ib.style.display = '';
   }
+  initPresetYears();
+  initPeriodDates();
   try {
     await refreshFileInfo();
   } catch (_) {
